@@ -1,0 +1,12 @@
+{
+  "ABC123": {
+    "expiry": "2026-12-31",
+    "status": "active",
+    "device": "SM-A507F"
+  },
+  "I090DO-8X104G": {
+     "expiry": "2026-05-27",
+     "status": "active",
+     "device": ""
+  }
+}
