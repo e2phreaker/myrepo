@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 WORKDIR="$HOME/MediaMatrix"
-ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2Uy..."
+ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2UycGhyZWFrZXIvbXlyZXBvL21haW4="
 REPO=$(echo "$ENC_REPO" | base64 -d)
 
 LICENSE_FILE="$HOME/.mediamatrix_license"
