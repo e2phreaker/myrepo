@@ -6,6 +6,7 @@
   },
   "ABC456": {
      "expiry": "2026-05-27",
-     "status": "revoked"
+     "status": "active",
+     "device": "M2007J20CG"
   }
 }
