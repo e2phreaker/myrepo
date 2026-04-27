@@ -1,7 +1,8 @@
 {
   "ABC123": {
-    "expiry": "2026-12-31",
-    "status": "active"
+    "expiry": "2026-05-27",
+    "status": "active",
+    "device": "M2007J20CG"
   },
   "ABC456": {
      "expiry": "2026-05-27",
