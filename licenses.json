@@ -1,22 +1,19 @@
 {
   "ABC123": {
-    "expiry": "2026-05-27",
+    "expiry": "2026-12-31",
     "status": "active",
     "device": ""
   },
-  "ABC456": {
-     "expiry": "2026-05-27",
-     "status": "active",
-     "device": "M2007J20CG"
+
+  "MONTH1": {
+    "expiry": "30d",
+    "status": "active",
+    "device": ""
   },
-    "ABC789": {
-     "expiry": "2026-05-27",
-     "status": "active",
-     "device": "M2007J20CG"
-  },
-  "ABC321": {
-     "expiry": "2026-05-27",
-     "status": "active",
-     "device": "M2007J20CG"
+
+  "VIP999": {
+    "expiry": "lifetime",
+    "status": "active",
+    "device": ""
   }
 }
