@@ -1,0 +1,882 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+WORKDIR="$HOME/MediaMatrix"
+REPO="https://raw.githubusercontent.com/e2phreaker/myrepo/main"
+LICENSE_FILE="$HOME/.mediamatrix_license"
+
+validate_license() {
+    LICENSE_URL="$REPO/licenses.json"
+
+    [ ! -f "$LICENSE_FILE" ] && echo "❌ License tidak ditemukan" && exit 1
+
+    USER_KEY=$(cat "$LICENSE_FILE")
+    [ -z "$USER_KEY" ] && echo "❌ License kosong" && exit 1
+
+    DATA=$(curl -s "$LICENSE_URL")
+    [ -z "$DATA" ] && echo "❌ Tidak bisa konek ke server" && exit 1
+
+    KEY_DATA=$(echo "$DATA" | grep -A5 "\"$USER_KEY\"")
+    [ -z "$KEY_DATA" ] && echo "❌ License tidak valid" && exit 1
+}
+
+# 🔴 WAJIB DI SINI (SEBELUM APAPUN)
+validate_license
+
+# ==========================
+# BARU SCRIPT UTAMA
+# ==========================
+
+echo "Audio module jalan..."
+
+WORKDIR="/sdcard/MediaMatrix"
+mkdir -p "$WORKDIR"
+
+# ============================
+# FUNCTION
+# ============================
+
+pilih_format() {
+    echo ""
+    echo "1. WAV"
+    echo "2. FLAC"
+    echo "3. ALAC"
+    echo "4. MP3"
+    echo "5. M4A"
+    read -p "Pilih: " f
+
+    case $f in
+        1) ext="wav"; codec="pcm_s16le";;
+        2) ext="flac"; codec="flac";;
+        3) ext="m4a"; codec="alac";;
+        4) ext="mp3"; codec="libmp3lame";;
+        5) ext="m4a"; codec="aac";;
+        *) echo "Pilihan tidak valid"; return 1;;
+    esac
+}
+
+pilih_video() {
+    echo ""
+    read -p "Filter video (contoh: mp4 mkv, kosong=semua): " filter
+
+    files=()
+
+    if [ -z "$filter" ]; then
+        while IFS= read -r f; do
+            files+=("$f")
+        done < <(find "$WORKDIR" -type f \( \
+            -iname "*.mp4" -o \
+            -iname "*.mkv" -o \
+            -iname "*.mov" -o \
+            -iname "*.avi" \
+        \))
+    else
+        for ext in $filter; do
+            for f in "$WORKDIR"/*."$ext"; do
+                [ -f "$f" ] && files+=("$f")
+            done
+        done
+    fi
+}
+
+pilih_audio() {
+    echo ""
+    read -p "Filter extension (contoh: mp3 wav, kosong=semua): " filter
+
+    files=()
+
+    if [ -z "$filter" ]; then
+        for f in "${files[@]}"; do
+            files+=("$f")
+        done < <(find "$WORKDIR" -type f \( \
+            -iname "*.mp3" -o \
+            -iname "*.wav" -o \
+            -iname "*.flac" -o \
+            -iname "*.m4a" \
+        \))
+    else
+        for ext in $filter; do
+            for f in "$WORKDIR"/*."$ext"; do
+                [ -f "$f" ] && files+=("$f")
+            done
+        done
+    fi
+}
+
+setup_output() {
+    read -p "Nama folder output (default: output): " outdir
+    outdir="$WORKDIR/${outdir:-output}"
+    mkdir -p "$outdir"
+}
+
+run_ffmpeg() {
+    ffmpeg -hide_banner -loglevel error -stats "$@"
+}
+
+format_time() {
+    printf "%02d:%02d:%02d" $(( $1/3600 )) $(( ($1%3600)/60 )) $(( $1%60 ))
+}
+
+get_duration() {
+    ffprobe -v error -show_entries format=duration \
+    -of default=noprint_wrappers=1:nokey=1 "$1"
+}
+
+get_size_mb() {
+    FILE="$1"
+
+    if [ -f "$FILE" ]; then
+        stat_size=$(stat -c%s "$FILE" 2>/dev/null)
+
+        if [ -z "$stat_size" ]; then
+            stat_size=$(wc -c < "$FILE" 2>/dev/null)
+        fi
+
+        awk "BEGIN {printf \"%.2f\", $stat_size/1024/1024}"
+    else
+        echo "0"
+    fi
+}
+
+parse_duration() {
+INPUT="$1"
+
+if [[ "$INPUT" =~ ^[0-9]+$ ]]; then
+  echo "$INPUT"
+elif [[ "$INPUT" =~ ^([0-9]+)s$ ]]; then
+  echo "${BASH_REMATCH[1]}"
+elif [[ "$INPUT" =~ ^([0-9]+)m$ ]]; then
+  echo $((${BASH_REMATCH[1]}*60))
+elif [[ "$INPUT" =~ ^([0-9]+)h$ ]]; then
+  echo $((${BASH_REMATCH[1]}*3600))
+elif [[ "$INPUT" =~ ^([0-9]+)m([0-9]+)s$ ]]; then
+  echo $((${BASH_REMATCH[1]}*60+${BASH_REMATCH[2]}))
+elif [[ "$INPUT" =~ ^([0-9]+)h([0-9]+)m$ ]]; then
+  echo $((${BASH_REMATCH[1]}*3600+${BASH_REMATCH[2]}*60))
+elif [[ "$INPUT" =~ ^([0-9]+)h([0-9]+)m([0-9]+)s$ ]]; then
+  echo $((${BASH_REMATCH[1]}*3600+${BASH_REMATCH[2]}*60+${BASH_REMATCH[3]}))
+else
+  echo "ERROR"
+fi
+}
+
+# ============================
+# LOOP SYSTEM
+# ============================
+while true; do
+
+clear
+echo "=============================="
+echo " 🎵 AudioMatrix Pro"
+echo "=============================="
+echo "📂 Working Dir: $WORKDIR"
+echo ""
+echo "1) 🎧 Extract Audio (Batch)"
+echo "2) 🔄 Convert Audio (Batch)"
+echo "3) 🧹 Clean Metadata"
+echo "4) 🔍 View Metadata (Full Info)"
+echo "5) 🎶 Merge Audio (Playlist Engine)"
+echo "6) 🎚️ Audio Mastering (Pro Engine)"
+echo "0) ❌ Keluar"
+echo "=============================="
+
+read -p "Pilih mode: " mode
+
+# ============================
+# MODE 1 - EXTRACT
+# ============================
+if [ "$mode" = "1" ]; then
+
+echo ""
+echo "🎧 Mode: Extract Audio (Batch)"
+
+# ===== PILIH FILE =====
+echo ""
+echo "Contoh filter:"
+echo "- mp4"
+echo "- mkv"
+echo "- webm"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_video
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎬 $(basename "$f")"
+done
+
+echo ""
+
+# ===== PILIH FORMAT =====
+pilih_format || continue
+
+echo ""
+echo "📦 Output format: .$ext"
+
+# ===== OUTPUT =====
+setup_output
+
+echo ""
+echo "🚀 Memproses ${#valid_files[@]} file..."
+
+for input in "${valid_files[@]}"; do
+    output="$outdir/${input%.*}_extract.$ext"
+
+    echo "🎵 $(basename "$input") → $(basename "$output")"
+    run_ffmpeg -i "$input" -vn -acodec $codec "$output"
+done
+
+echo ""
+echo "✅ Selesai | Folder: $outdir"
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 2 - CONVERT
+# ============================
+if [ "$mode" = "2" ]; then
+
+echo ""
+echo "🔄 Mode: Convert Audio (Batch)"
+
+# ===== PILIH FILE =====
+echo ""
+echo "Contoh filter:"
+echo "- wav"
+echo "- flac"
+echo "- mp3"
+echo "- m4a"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_audio
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎵 $(basename "$f")"
+done
+
+echo ""
+
+# ===== PILIH FORMAT =====
+pilih_format || continue
+
+echo ""
+echo "📦 Output format: .$ext"
+
+# ===== BITRATE =====
+if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+    echo ""
+    echo "🎚️ Pilih bitrate:"
+    echo "1. 128k (standar)"
+    echo "2. 192k (bagus)"
+    echo "3. 256k (tinggi)"
+    echo "4. 320k (maksimal)"
+    echo "5. Custom"
+    read -p "Pilih: " b
+
+    case $b in
+        1) bitrate_opt="-b:a 128k" ;;
+        2) bitrate_opt="-b:a 192k" ;;
+        3) bitrate_opt="-b:a 256k" ;;
+        4) bitrate_opt="-b:a 320k" ;;
+        5)
+            read -p "Masukkan bitrate (contoh 200k): " br
+            bitrate_opt="-b:a $br"
+            ;;
+        *)
+            echo "❌ Tidak valid"
+            read -p "ENTER..."
+            continue
+            ;;
+    esac
+else
+    bitrate_opt=""
+fi
+
+# ===== OUTPUT =====
+setup_output
+
+echo ""
+echo "🚀 Memproses ${#valid_files[@]} file..."
+
+for input in "${valid_files[@]}"; do
+    output="$outdir/${input%.*}_convert.$ext"
+
+    echo "🎧 $(basename "$input") → $(basename "$output")"
+    run_ffmpeg -i "$input" -vn -acodec $codec $bitrate_opt "$output"
+done
+
+echo ""
+echo "✅ Selesai | Folder: $outdir"
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 3 - CLEAN METADATA
+# ============================
+if [ "$mode" = "3" ]; then
+
+echo ""
+echo "🧹 Mode: Clean Metadata (Batch)"
+echo ""
+echo "ℹ️ Fungsi:"
+echo "- Menghapus semua metadata (tag, artist, album, dll)"
+echo "- Audio tetap sama (tidak di-reencode)"
+echo ""
+
+# ===== PILIH FILE =====
+echo "Contoh filter:"
+echo "- wav"
+echo "- flac"
+echo "- mp3"
+echo "- m4a"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_audio
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎵 $(basename "$f")"
+done
+
+echo ""
+
+# ===== OUTPUT =====
+setup_output
+
+echo ""
+echo "🚀 Memproses ${#valid_files[@]} file..."
+
+for input in "${valid_files[@]}"; do
+    ext="${input##*.}"
+    output="$outdir/${input%.*}_clean.$ext"
+
+    echo "🧹 $input → $output"
+    run_ffmpeg -i "$input" -map_metadata -1 -c copy "$output"
+done
+
+echo ""
+echo "✅ Selesai | Folder: $outdir"
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 4 - METADATA
+# ============================
+if [ "$mode" = "4" ]; then
+
+echo ""
+echo "🔍 Mode: Cek Metadata Audio (Lengkap)"
+
+# ===== PILIH FILE =====
+echo ""
+echo "Contoh filter:"
+echo "- wav"
+echo "- flac"
+echo "- mp3"
+echo "- m4a"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_audio
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎵 $(basename "$f")"
+done
+
+echo ""
+
+echo ""
+echo "📊 Menampilkan metadata lengkap..."
+
+for input in "${valid_files[@]}"; do
+
+    echo ""
+    echo "========================================"
+    echo "🎧 File: $input"
+    echo "========================================"
+
+    ffprobe -v error \
+    -show_entries format=filename,format_name,duration,bit_rate:format_tags \
+    -show_entries stream=codec_name,codec_type,sample_rate,channels:stream_tags \
+    -of default=noprint_wrappers=1 "$input" | sed 's/=/ : /'
+
+done
+
+echo ""
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 5 - MERGE + TIMELINE (UPGRADE)
+# ============================
+if [ "$mode" = "5" ]; then
+
+echo ""
+echo "🎶 Mode: Gabungkan Audio (Playlist Engine)"
+
+# ===== PILIH FILE =====
+echo ""
+echo "Contoh filter:"
+echo "- wav"
+echo "- flac"
+echo "- mp3"
+echo "- m4a"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_audio
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎵 $(basename "$f")"
+done
+
+echo ""
+
+# ===== FORMAT =====
+pilih_format || continue
+setup_output
+
+echo ""
+echo "📦 Output: .$ext"
+
+# ===== URUTAN =====
+echo ""
+echo "🔀 Urutan:"
+echo "1. Urut nama"
+echo "2. Acak"
+read -p "Pilih: " order
+
+if [ "$order" = "1" ]; then
+    mapfile -t selected < <(printf "%s\n" "${valid_files[@]}" | sort)
+else
+    mapfile -t selected < <(printf "%s\n" "${valid_files[@]}" | shuf)
+fi
+
+# ===== MODE PLAYLIST =====
+echo ""
+echo "🎼 Mode Playlist:"
+echo "1. Jumlah Track"
+echo "2. Durasi Maksimal"
+read -p "Pilih: " smode
+
+# ---- JUMLAH TRACK ----
+if [ "$smode" = "1" ]; then
+    echo ""
+    echo "1. Semua"
+    echo "2. Custom"
+    read -p "Pilih: " tcount
+
+    if [ "$tcount" = "2" ]; then
+        read -p "🔢 Masukkan jumlah track: " max_tracks
+
+        if ! [[ "$max_tracks" =~ ^[0-9]+$ ]]; then
+            echo "❌ Input tidak valid"
+            continue
+        fi
+
+        selected=("${selected[@]:0:$max_tracks}")
+    fi
+fi
+
+# ---- DURASI ----
+if [ "$smode" = "2" ]; then
+    echo ""
+    echo "Contoh durasi: 300, 5m, 1h30m"
+    read -p "⏱️ Target durasi: " dur_input
+
+    TARGET=$(parse_duration "$dur_input")
+
+    if [ "$TARGET" = "ERROR" ]; then
+        echo "❌ Format durasi tidak valid"
+        continue
+    fi
+
+    total=0
+    new_selected=()
+
+    for f in "${selected[@]}"; do
+        dur=$(get_duration "$f")
+        dur=${dur%.*}
+
+        next_total=$((total + dur))
+
+        if [ "$next_total" -le "$TARGET" ]; then
+            new_selected+=("$f")
+            total=$next_total
+        fi
+    done
+
+    selected=("${new_selected[@]}")
+fi
+
+# ===== VALIDASI FINAL =====
+if [ ${#selected[@]} -eq 0 ]; then
+    echo "❌ Tidak ada track yang dipilih!"
+    read -p "ENTER..."
+    continue
+fi
+
+echo ""
+echo "📊 Total track: ${#selected[@]}"
+
+# ===== BITRATE =====
+echo ""
+echo "🎚️ Bitrate:"
+echo "1. 128k"
+echo "2. 192k"
+echo "3. 256k"
+echo "4. 320k"
+echo "5. Custom"
+read -p "Pilih: " b
+
+if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+    case $b in
+        1) bitrate_opt="-b:a 128k" ;;
+        2) bitrate_opt="-b:a 192k" ;;
+        3) bitrate_opt="-b:a 256k" ;;
+        4) bitrate_opt="-b:a 320k" ;;
+        5) read -p "Masukkan bitrate: " br; bitrate_opt="-b:a $br" ;;
+        *) echo "❌ Tidak valid"; continue ;;
+    esac
+else
+    bitrate_opt=""
+fi
+
+# ===== TRANSISI =====
+echo ""
+echo "🎚️ Transisi:"
+echo "1. Tanpa fade"
+echo "2. Fade in/out"
+read -p "Pilih: " tmode
+
+if [ "$tmode" = "2" ]; then
+    read -p "Durasi fade (detik, default 3): " fade
+    fade=${fade:-3}
+fi
+
+# ===== TIMELINE =====
+timeline_file="$outdir/timeline_$(date +%H-%M-%S).txt"
+> "$timeline_file"
+
+current_time=0
+index=1
+
+for f in "${selected[@]}"; do
+    dur=$(get_duration "$f")
+    dur=${dur%.*}
+
+    printf "%s | Track %02d | %s\n" \
+    "$(format_time $current_time)" "$index" "$(basename "$f")" \
+    | tee -a "$timeline_file"
+
+    current_time=$((current_time + dur))
+    index=$((index+1))
+done
+
+timestamp=$(date +%H-%M-%S)
+output="$outdir/merged_${timestamp}.$ext"
+
+echo ""
+echo "🚀 Menggabungkan audio..."
+
+# ===== NO FADE (SMART MODE) =====
+if [ "$tmode" = "1" ]; then
+        list="$outdir/list.txt"
+        > "$list"
+
+        for f in "${selected[@]}"; do
+            safe_path=$(printf "%s" "$f" | sed "s/'/'\\\\''/g")
+printf "file '%s'\n" "$safe_path" >> "$list"
+        done
+
+        run_ffmpeg -f concat -safe 0 -i "$list" \
+        -acodec $codec $bitrate_opt "$output"
+    fi
+
+# ===== FADE =====
+if [ "$tmode" = "2" ]; then
+    inputs=""
+    filter=""
+    i=0
+
+    for f in "${selected[@]}"; do
+        inputs="$inputs -i \"$f\""
+
+        dur=$(get_duration "$f")
+        dur=${dur%.*}
+        start_out=$((dur - fade))
+
+        filter="$filter[$i:a]afade=t=in:st=0:d=$fade,afade=t=out:st=$start_out:d=$fade[a$i];"
+        i=$((i+1))
+    done
+
+    concat_inputs=""
+    for ((j=0; j<i; j++)); do
+        concat_inputs="$concat_inputs[a$j]"
+    done
+
+    filter="$filter$concat_inputs concat=n=$i:v=0:a=1[out]"
+
+    eval run_ffmpeg $inputs -filter_complex "\"$filter\"" -map "[out]" \
+    -acodec $codec $bitrate_opt "$output"
+fi
+
+echo ""
+echo "✅ Output: $output"
+echo "🕒 Timeline: $timeline_file"
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 6 - MASTERING PRO SMART + SIZE
+# ============================
+if [ "$mode" = "6" ]; then
+
+echo ""
+echo "🎚️ Mode: Audio Mastering (Pro)"
+
+# ===== PILIH FILE =====
+echo ""
+echo "Contoh filter:"
+echo "- wav"
+echo "- flac"
+echo "- mp3"
+echo "- m4a"
+echo "- (kosong = semua file)"
+echo ""
+
+pilih_audio
+
+# ===== FILTER FILE =====
+valid_files=()
+for f in "${files[@]}"; do
+    [ -f "$f" ] && valid_files+=("$f")
+done
+
+# ===== VALIDASI =====
+if [ ${#valid_files[@]} -eq 0 ]; then
+    echo ""
+    echo "❌ Tidak ada file di $WORKDIR"
+    echo ""
+    read -p "ENTER..."
+    continue
+fi
+
+# ===== TAMPILKAN FILE =====
+echo ""
+echo "📂 Ditemukan ${#valid_files[@]} file:"
+echo ""
+
+for f in "${valid_files[@]}"; do
+    echo "🎵 $(basename "$f")"
+done
+
+echo ""
+
+# ===== FORMAT =====
+pilih_format || continue
+setup_output
+
+# ===== PRESET =====
+echo ""
+echo "🎛️ Preset Mastering:"
+echo "1. Original (tanpa perubahan)"
+echo "2. Spotify (-14 LUFS)"
+echo "3. YouTube (-16 LUFS)"
+echo "4. Aggressive (-12 LUFS)"
+read -p "Pilih: " p
+
+case $p in
+    1) AUDIO_FILTER="" ;;
+    2) AUDIO_FILTER="loudnorm=I=-14:LRA=11:TP=-1.5" ;;
+    3) AUDIO_FILTER="loudnorm=I=-16:LRA=11:TP=-1.5" ;;
+    4) AUDIO_FILTER="loudnorm=I=-12:LRA=9:TP=-1.0" ;;
+    *) echo "❌ Tidak valid"; continue ;;
+esac
+
+# ===== LIMITER =====
+echo ""
+echo "🔊 Limiter:"
+echo "1. Safe (0.90)"
+echo "2. Normal (0.95)"
+echo "3. Max (1.0)"
+read -p "Pilih: " l
+
+case $l in
+    1) LIMIT="0.90" ;;
+    2) LIMIT="0.95" ;;
+    3) LIMIT="1.0" ;;
+    *) echo "❌ Tidak valid"; continue ;;
+esac
+
+echo ""
+echo "🚀 Memproses ${#valid_files[@]} file..."
+
+for input in "${valid_files[@]}"; do
+
+    output="$outdir/${input%.*}_master.$ext"
+    size_before=$(get_size_mb "$input")
+
+    echo ""
+    echo "🎧 File: $input"
+
+    # ===== DETEKSI AUDIO =====
+    HAS_VIDEO=$(ffprobe -v error -select_streams v \
+    -show_entries stream=codec_type \
+    -of csv=p=0 "$input")
+
+    if [ -n "$HAS_VIDEO" ]; then
+        MAP_OPT="-vn -map 0:a"
+    else
+        MAP_OPT="-map 0:a"
+    fi
+
+    # ===== BITRATE AUTO =====
+    SRC_BR=$(ffprobe -v error -show_entries format=bit_rate \
+    -of default=noprint_wrappers=1:nokey=1 "$input")
+
+    if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+        BR_K=$(($SRC_BR / 1000))
+        [ "$BR_K" -gt 320 ] && BR_K=320
+        [ "$BR_K" -le 0 ] && BR_K=192
+        bitrate_opt="-b:a ${BR_K}k"
+    else
+        bitrate_opt=""
+    fi
+
+    # ===== FILTER =====
+    if [ -z "$AUDIO_FILTER" ]; then
+        FILTER_OPT=""
+    else
+        FILTER_OPT="-af ${AUDIO_FILTER},alimiter=limit=${LIMIT}"
+    fi
+
+    echo "🎚️ Processing..."
+
+    run_ffmpeg -i "$input" $MAP_OPT $FILTER_OPT \
+    -acodec $codec $bitrate_opt "$output"
+
+    # tunggu file benar-benar siap
+    sleep 0.5
+    
+    size_after=$(get_size_mb "$output")
+
+    echo "📦 Size before : ${size_before} MB"
+    echo "📦 Size after  : ${size_after} MB"
+
+done
+
+echo ""
+echo "✅ Selesai | Folder: $outdir"
+read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# EXIT
+# ============================
+if [ "$mode" = "0" ]; then
+    echo "Keluar..."
+    break
+fi
+
+done
