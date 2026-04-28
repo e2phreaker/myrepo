@@ -814,7 +814,8 @@ echo "🚀 Memproses ${#valid_files[@]} file..."
 
 for input in "${valid_files[@]}"; do
 
-    output="$outdir/${input%.*}_master.$ext"
+    filename=$(basename "${input%.*}")
+output="$outdir/${filename}_master.$ext"
     size_before=$(get_size_mb "$input")
 
     echo ""
