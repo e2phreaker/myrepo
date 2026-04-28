@@ -5,8 +5,8 @@
     "device": ""
   },
 
-  "MONTH1": {
-    "expiry": "30d",
+  "1BULAN": {
+    "expiry": "31d",
     "status": "active",
     "device": ""
   },
