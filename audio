@@ -84,14 +84,15 @@ pilih_audio() {
 
     files=()
 
-    while IFS= read -r f; do
-    files+=("$f")
-    done < <(find "$WORKDIR" -type f \( \
-        -iname "*.mp3" -o \
-        -iname "*.wav" -o \
-        -iname "*.flac" -o \
-        -iname "*.m4a" \
-    \))
+    if [ -z "$filter" ]; then
+        while IFS= read -r f; do
+            files+=("$f")
+        done < <(find "$WORKDIR" -type f \( \
+            -iname "*.mp4" -o \
+            -iname "*.mkv" -o \
+            -iname "*.mov" -o \
+            -iname "*.avi" \
+        \))
     else
         for ext in $filter; do
             for f in "$WORKDIR"/*."$ext"; do
