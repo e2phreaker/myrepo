@@ -681,17 +681,44 @@ echo "🚀 Menggabungkan audio..."
 
 # ===== NO FADE (SMART MODE) =====
 if [ "$tmode" = "1" ]; then
-        list="$outdir/list.txt"
-        > "$list"
 
+    tempdir="$outdir/temp"
+    mkdir -p "$tempdir"
+    rm -f "$tempdir"/*
+
+    i=0
+    while IFS= read -r line; do
+        infile=$(echo "$line" | sed "s/^file '//;s/'$//")
+
+        outfile="$tempdir/file_$i.$ext"
+
+        if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+            bitrate_fix="-b:a 192k"
+        else
+            bitrate_fix=""
+        fi
+
+        run_ffmpeg -i "$infile" \
+        -acodec $codec $bitrate_fix \
+        -ar 44100 -ac 2 \
+        "$outfile"
+
+        i=$((i+1))
+    done < <(
         for f in "${selected[@]}"; do
-            safe_path=$(printf "%s" "$f" | sed "s/'/'\\\\''/g")
-printf "file '%s'\n" "$safe_path" >> "$list"
+            printf "file '%s'\n" "$f"
         done
+    )
 
-        run_ffmpeg -f concat -safe 0 -i "$list" \
-        -acodec $codec $bitrate_opt "$output"
-    fi
+    newlist="$tempdir/list.txt"
+    > "$newlist"
+
+    for f in "$tempdir"/*."$ext"; do
+        echo "file '$f'" >> "$newlist"
+    done
+
+    run_ffmpeg -f concat -safe 0 -i "$newlist" -c copy "$output"
+fi
 
 # ===== FADE =====
 if [ "$tmode" = "2" ]; then
