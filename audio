@@ -733,7 +733,9 @@ if [ "$tmode" = "1" ]; then
     echo "🔗 Menggabungkan audio..."
 
     # ===== CONCAT FINAL =====
-    run_ffmpeg -f concat -safe 0 -i "$newlist" -c copy "$output"
+    run_ffmpeg -f concat -safe 0 -i "$newlist" \
+-acodec $codec -ar 44100 -ac 2 \
+"$output"
 
 fi
 
