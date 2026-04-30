@@ -687,9 +687,10 @@ if [ "$tmode" = "1" ]; then
     rm -f "$tempdir"/*
 
     i=0
-    while IFS= read -r line; do
-        infile=$(echo "$line" | sed "s/^file '//;s/'$//")
 
+    # ===== RE-ENCODE SEMUA FILE (AMAN) =====
+    for f in "${selected[@]}"; do
+        infile="$f"
         outfile="$tempdir/file_$i.$ext"
 
         if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
@@ -698,26 +699,42 @@ if [ "$tmode" = "1" ]; then
             bitrate_fix=""
         fi
 
+        echo "🔧 Processing: $(basename "$infile")"
+
         run_ffmpeg -i "$infile" \
         -acodec $codec $bitrate_fix \
         -ar 44100 -ac 2 \
         "$outfile"
 
         i=$((i+1))
-    done < <(
-        for f in "${selected[@]}"; do
-            printf "file '%s'\n" "$f"
-        done
-    )
+    done
 
+    # ===== VALIDASI FILE HASIL =====
+    if [ "$i" -eq 0 ]; then
+        echo "❌ Tidak ada file berhasil diproses"
+        exit 1
+    fi
+
+    # ===== BUAT LIST CONCAT (FIX TANPA GLOB) =====
     newlist="$tempdir/list.txt"
     > "$newlist"
 
-    for f in "$tempdir"/*."$ext"; do
-        echo "file '$f'" >> "$newlist"
+    for ((j=0; j<i; j++)); do
+        echo "file '$tempdir/file_$j.$ext'" >> "$newlist"
     done
 
+    # ===== VALIDASI LIST =====
+    if [ ! -s "$newlist" ]; then
+        echo "❌ List kosong"
+        exit 1
+    fi
+
+    echo ""
+    echo "🔗 Menggabungkan audio..."
+
+    # ===== CONCAT FINAL =====
     run_ffmpeg -f concat -safe 0 -i "$newlist" -c copy "$output"
+
 fi
 
 # ===== FADE =====
