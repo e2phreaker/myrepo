@@ -727,7 +727,7 @@ if [ "$tmode" = "2" ]; then
     i=0
 
     for f in "${selected[@]}"; do
-        inputs="$inputs -i \"$f\""
+        inputs+=("-i" "$f")
 
         dur=$(get_duration "$f")
         dur=${dur%.*}
@@ -744,8 +744,8 @@ if [ "$tmode" = "2" ]; then
 
     filter="$filter$concat_inputs concat=n=$i:v=0:a=1[out]"
 
-    eval run_ffmpeg $inputs -filter_complex "\"$filter\"" -map "[out]" \
-    -acodec $codec $bitrate_opt "$output"
+    run_ffmpeg "${inputs[@]}" -filter_complex "$filter" -map "[out]" \
+-acodec $codec $bitrate_opt "$output"
 fi
 
 echo ""
