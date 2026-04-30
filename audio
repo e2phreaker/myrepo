@@ -722,7 +722,7 @@ fi
 
 # ===== FADE =====
 if [ "$tmode" = "2" ]; then
-    inputs=""
+    inputs=()
     filter=""
     i=0
 
