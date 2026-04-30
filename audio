@@ -733,19 +733,24 @@ if [ "$tmode" = "2" ]; then
         dur=${dur%.*}
         start_out=$((dur - fade))
 
-        filter="$filter[$i:a]afade=t=in:st=0:d=$fade,afade=t=out:st=$start_out:d=$fade[a$i];"
+        # ❗ FIX DI SINI (pakai koma, bukan ;)
+        filter="$filter[$i:a]afade=t=in:st=0:d=$fade,afade=t=out:st=$start_out:d=$fade[a$i],"
         i=$((i+1))
     done
+
+    # ❗ HAPUS koma terakhir
+    filter="${filter%,}"
 
     concat_inputs=""
     for ((j=0; j<i; j++)); do
         concat_inputs="$concat_inputs[a$j]"
     done
 
-    filter="$filter$concat_inputs concat=n=$i:v=0:a=1[out]"
+    # ❗ ; hanya di sini
+    filter="$filter;$concat_inputs concat=n=$i:v=0:a=1[out]"
 
     run_ffmpeg "${inputs[@]}" -filter_complex "$filter" -map "[out]" \
--acodec $codec $bitrate_opt "$output"
+    -acodec $codec $bitrate_opt "$output"
 fi
 
 echo ""
