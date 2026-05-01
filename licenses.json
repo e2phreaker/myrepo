@@ -21,5 +21,11 @@
     "expiry": "1d",
     "status": "active",
     "device": "M2007J20CG"
-  }
+  },
+
+  "VIP-AC": {
+    "expiry": "lifetime",
+    "status": "active",
+    "device": ""
+  },
 }
