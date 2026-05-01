@@ -239,7 +239,8 @@ echo ""
 echo "🚀 Memproses ${#valid_files[@]} file..."
 
 for input in "${valid_files[@]}"; do
-    output="$outdir/${input%.*}_extract.$ext"
+    filename=$(basename "$input")
+output="$outdir/${filename%.*}_extract.$ext"
 
     echo "🎵 $(basename "$input") → $(basename "$output")"
     run_ffmpeg -i "$input" -vn -acodec $codec "$output"
@@ -339,7 +340,8 @@ echo ""
 echo "🚀 Memproses ${#valid_files[@]} file..."
 
 for input in "${valid_files[@]}"; do
-    output="$outdir/${input%.*}_convert.$ext"
+    filename=$(basename "$input")
+output="$outdir/${filename%.*}_convert.$ext"
 
     echo "🎧 $(basename "$input") → $(basename "$output")"
     run_ffmpeg -i "$input" -vn -acodec $codec $bitrate_opt "$output"
@@ -408,7 +410,8 @@ echo "🚀 Memproses ${#valid_files[@]} file..."
 
 for input in "${valid_files[@]}"; do
     ext="${input##*.}"
-    output="$outdir/${input%.*}_clean.$ext"
+    filename=$(basename "$input")
+output="$outdir/${filename%.*}_clean.$ext"
 
     echo "🧹 $input → $output"
     run_ffmpeg -i "$input" -map_metadata -1 -c copy "$output"
