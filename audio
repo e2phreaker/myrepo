@@ -734,7 +734,7 @@ if [ "$tmode" = "1" ]; then
 
     # ===== CONCAT FINAL =====
     run_ffmpeg -f concat -safe 0 -fflags +genpts -i "$newlist" \
--c copy -avoid_negative_ts make_zero "$output"
+-c copy -reset_timestamps 1 -avoid_negative_ts make_zero "$output"
 
 if [ -f "$output" ]; then
     rm -rf "$tempdir"
