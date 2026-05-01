@@ -210,7 +210,7 @@ draw_menu() {
     echo ""
     echo -e "${CYAN}╔══════════════════════════════╗${RESET}"
     echo -e "${CYAN}║   🎛️ MediaMatrix Suite      ║${RESET}"
-    echo -e "${CYAN}║${RESET} 👤 Asep Rianto            ${CYAN}║${RESET}"
+    echo -e "${CYAN}║${RESET} 👤 Author Asep Rianto            ${CYAN}║${RESET}"
 echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}║${RESET}"
     echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}1) 🎵 AudioMatrix Pro${RESET}      ${CYAN}║${RESET}"
