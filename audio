@@ -736,6 +736,10 @@ if [ "$tmode" = "1" ]; then
     run_ffmpeg -f concat -safe 0 -fflags +genpts -i "$newlist" \
 -c copy -avoid_negative_ts make_zero "$output"
 
+if [ -f "$output" ]; then
+    rm -rf "$tempdir"
+fi
+
 fi
 
 # ===== FADE =====
