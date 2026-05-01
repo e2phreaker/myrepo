@@ -15,5 +15,11 @@
     "expiry": "lifetime",
     "status": "active",
     "device": "M2007J20CG"
+  },
+
+  "TRIAL1D": {
+    "expiry": "1d",
+    "status": "active",
+    "device": "M2007J20CG"
   }
 }
