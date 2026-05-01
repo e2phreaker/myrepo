@@ -702,31 +702,32 @@ if [ "$tmode" = "1" ]; then
 
     # ===== RE-ENCODE SEMUA FILE (AMAN) =====
     for f in "${selected[@]}"; do
-        infile="$f"
-        outfile="$tempdir/file_$i.$ext"
+    for f in "${selected[@]}"; do
+    infile="$f"
+    outfile="$tempdir/file_$i.$ext"
 
-        if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
-            bitrate_fix="-b:a 192k"
-        else
-            bitrate_fix=""
-        fi
+    # ambil sample rate & channel
+    sr=$(ffprobe -v error -select_streams a:0 \
+    -show_entries stream=sample_rate \
+    -of default=noprint_wrappers=1:nokey=1 "$infile")
 
-        echo "🔧 Processing: $(basename "$infile")"
+    ch=$(ffprobe -v error -select_streams a:0 \
+    -show_entries stream=channels \
+    -of default=noprint_wrappers=1:nokey=1 "$infile")
 
-        if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
-    # MP3 / M4A → wajib seragam
-    run_ffmpeg -i "$infile" \
-    -acodec $codec $bitrate_fix \
-    -ar 44100 -ac 2 \
-    "$outfile"
-else
-    # WAV / FLAC → biarkan natural
-    run_ffmpeg -i "$infile" \
-    -acodec $codec \
-    "$outfile"
-fi
-        i=$((i+1))
-    done
+    if [[ "$sr" == "44100" && "$ch" == "2" ]]; then
+        echo "⚡ Copy: $(basename "$infile")"
+        cp "$infile" "$outfile"
+    else
+        echo "🔧 Re-encode: $(basename "$infile")"
+        run_ffmpeg -i "$infile" \
+        -acodec $codec $bitrate_opt \
+        -ar 44100 -ac 2 \
+        "$outfile"
+    fi
+
+    i=$((i+1))
+done
 
     # ===== VALIDASI FILE HASIL =====
     if [ "$i" -eq 0 ]; then
