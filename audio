@@ -344,7 +344,16 @@ for input in "${valid_files[@]}"; do
 output="$outdir/${filename%.*}_convert.$ext"
 
     echo "🎧 $(basename "$input") → $(basename "$output")"
-    run_ffmpeg -i "$input" -vn -acodec $codec $bitrate_opt "$output"
+    if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+    run_ffmpeg -i "$input" -vn \
+    -acodec $codec $bitrate_opt \
+    -ar 44100 -ac 2 \
+    "$output"
+else
+    run_ffmpeg -i "$input" -vn \
+    -acodec $codec \
+    "$output"
+fi
 done
 
 echo ""
@@ -704,11 +713,18 @@ if [ "$tmode" = "1" ]; then
 
         echo "🔧 Processing: $(basename "$infile")"
 
-        run_ffmpeg -i "$infile" \
-        -acodec $codec $bitrate_fix \
-        -ar 44100 -ac 2 \
-        "$outfile"
-
+        if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+    # MP3 / M4A → wajib seragam
+    run_ffmpeg -i "$infile" \
+    -acodec $codec $bitrate_fix \
+    -ar 44100 -ac 2 \
+    "$outfile"
+else
+    # WAV / FLAC → biarkan natural
+    run_ffmpeg -i "$infile" \
+    -acodec $codec \
+    "$outfile"
+fi
         i=$((i+1))
     done
 
