@@ -702,7 +702,6 @@ if [ "$tmode" = "1" ]; then
 
     # ===== RE-ENCODE SEMUA FILE (AMAN) =====
     for f in "${selected[@]}"; do
-    for f in "${selected[@]}"; do
     infile="$f"
     outfile="$tempdir/file_$i.$ext"
 
