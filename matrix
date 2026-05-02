@@ -230,7 +230,15 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ║${RESET}"
 # LOOP
 # =========================
 while true; do
-    validate_license >/dev/null 2>&1
+    if ! validate_license; then
+        rm -f "$LICENSE_FILE"
+        echo ""
+        echo -e "${RED}⛔ License expired / tidak valid${RESET}"
+        echo ""
+        sleep 1
+        continue
+    fi
+
     draw_menu
     echo ""
     read -p "Pilih menu: " menu
