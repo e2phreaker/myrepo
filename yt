@@ -78,10 +78,7 @@ while true; do
   echo "3) 🖼️ Thumbnail Downloader"
   echo "4) 🌐 Platform Support"
   echo "5) 🔍 Cek Link"
-  echo "6) 🐍 Install Python"
-  echo "7) ⚙️ Install yt-dlp"
-  echo "8) 🔄 Update yt-dlp"
-  echo "9) 🧰 Install ffmpeg"
+  echo "6) 🔄 Update yt-dlp"
   echo "0) ❌ Keluar"
   echo ""
 
@@ -453,38 +450,11 @@ while true; do
   ;;
 
   # =========================
-  # INSTALL PYTHON
-  # =========================
-  6)
-    pkg install python -y
-    echo "✔ Python selesai"
-    read -p "ENTER..."
-    ;;
-
-  # =========================
-  # INSTALL YT-DLP
-  # =========================
-  7)
-    pip install yt-dlp
-    echo "✔ yt-dlp selesai"
-    read -p "ENTER..."
-    ;;
-
-  # =========================
   # UPDATE YT-DLP
   # =========================
-  8)
+  6)
     pip install -U yt-dlp
     echo "✔ Update selesai"
-    read -p "ENTER..."
-    ;;
-
-  # =========================
-  # INSTALL FFMPEG
-  # =========================
-  9)
-    pkg install ffmpeg -y
-    echo "✔ ffmpeg selesai"
     read -p "ENTER..."
     ;;
 
