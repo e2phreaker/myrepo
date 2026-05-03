@@ -46,24 +46,24 @@ run_yt() {
   yt-dlp -f "$FORMAT_VIDEO" \
   --merge-output-format "$MERGE" \
   $THUMB_OPT $META_OPT "${PROGRESS_OPT[@]}" \
-  -o "$WORKDIR/%(title).60s [%(id)s].%(ext)s" "$@"
+  -o "$WORKDIR/%(title).80s [%(id)s].%(ext)s" "$@"
 }
 
 run_audio() {
   yt-dlp -x --audio-format "$AFORMAT" \
   $THUMB_OPT $META_OPT "${PROGRESS_OPT[@]}" \
-  -o "$WORKDIR/%(title).60s [%(id)s].%(ext)s" "$@"
+  -o "$WORKDIR/%(title).80s [%(id)s].%(ext)s" "$@"
 }
 
 run_thumb() {
   if [ "$THUMB_SELECT" = "all" ]; then
     yt-dlp --write-all-thumbnails $FORMAT_OPT --skip-download \
     "${PROGRESS_OPT[@]}" \
-    -o "$WORKDIR/%(title).60s [%(id)s].%(ext)s" "$@"
+    -o "$WORKDIR/%(title).80s [%(id)s].%(ext)s" "$@"
   else
     yt-dlp --write-thumbnail $FORMAT_OPT --skip-download \
     "${PROGRESS_OPT[@]}" \
-    -o "$WORKDIR/%(title).60s [%(id)s].%(ext)s" "$@"
+    -o "$WORKDIR/%(title).80s [%(id)s].%(ext)s" "$@"
   fi
 }
 
