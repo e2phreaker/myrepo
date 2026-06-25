@@ -115,7 +115,32 @@ fi
 # VALIDASI EXPIRED
 # =========================
 if [[ "$EXPIRY" != "lifetime" && "$NOW_SEC" -gt "$EXP_SEC" ]]; then
+
+    clear
+    echo "===================================="
+    echo "      LICENSE EXPIRED"
+    echo "===================================="
+    echo ""
     echo "⛔ License expired ($EXPIRY)"
+    echo ""
+    echo "1. Hapus license"
+    echo "2. Keluar"
+    echo ""
+
+    read -p "Pilih [1-2]: " MENU
+
+    case "$MENU" in
+        1)
+            rm -f "$LICENSE_FILE"
+            echo "✅ License berhasil dihapus."
+            ;;
+        2)
+            ;;
+        *)
+            echo "❌ Pilihan tidak valid."
+            ;;
+    esac
+
     return 1
 fi
 
@@ -231,10 +256,6 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ║${RESET}"
 # =========================
 while true; do
     if ! validate_license; then
-        rm -f "$LICENSE_FILE"
-        echo ""
-        echo -e "${RED}⛔ License expired / tidak valid${RESET}"
-        echo ""
         sleep 1
         continue
     fi
