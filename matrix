@@ -277,7 +277,7 @@ draw_menu() {
     echo -e "${CYAN}║   🎛️ MediaMatrix Suite        ${RESET}"
     echo -e "${CYAN}║${RESET} 👤 Author Asep Rianto  ${CYAN}${RESET}"
 echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ${RESET}"
-    echo -e "${CYAN}╠══════════════════════════════${RESET}"
+    echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}1) 🎵 AudioMatrix Pro${RESET}      ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}2) 🎬 VideoMatrix Pro${RESET}      ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}3) 📺 StreamMatrix Pro${RESET}     ${CYAN}${RESET}"
