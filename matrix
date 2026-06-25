@@ -251,6 +251,18 @@ check_update() {
     fi
 }
 
+view_changelog() {
+
+    clear
+
+    echo "========== CHANGELOG =========="
+    echo ""
+
+    curl -fsSL "$CHANGELOG_URL"
+
+    echo ""
+}
+
 # =========================
 # START SYSTEM
 # =========================
@@ -278,6 +290,7 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ║${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}║${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}8) 🔑 Kelola License${RESET}     ${CYAN}║${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}9) 🔍 Cek Update${RESET}           ${CYAN}║${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}10) 📜 Lihat Changelog${RESET}           ${CYAN}║${RESET}"
     echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${RED}0) ❌ Keluar${RESET}                ${CYAN}║${RESET}"
     echo -e "${CYAN}╚══════════════════════════════╝${RESET}"
@@ -371,6 +384,10 @@ while true; do
         9)
             check_update
             echo ""
+            read -p "ENTER untuk kembali..."
+            ;;
+        10)
+            view_changelog
             read -p "ENTER untuk kembali..."
             ;;
         0)
