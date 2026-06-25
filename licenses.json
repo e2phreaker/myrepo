@@ -1,12 +1,12 @@
 {
   "ABC123": {
-    "expiry": "31d",
+    "expiry": "2026-06-25",
     "status": "active",
     "device": "RMX2170"
   },
 
   "1BULAN": {
-    "expiry": "2026-06-24",
+    "expiry": "31d",
     "status": "active",
     "device": "RMX2170"
   },
