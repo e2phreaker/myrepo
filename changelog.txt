@@ -1,10 +1,38 @@
-MediaMatrix v1.1
+=========================================
+MediaMatrix Changelog
+=========================================
 
-[FEATURE]
-- AudioMatrix
-- VideoMatrix
-- StreamMatrix 
-- LoopMatrix
+Version 1.0.0
+2026-06-26
 
-[FIX]
-- Download Audio on TikTok
+[NEW]
+- Initial release
+- AudioMatrix Pro
+- VideoMatrix Pro
+- StreamMatrix Pro
+- LoopMatrix Pro
+- License validation
+- Online update
+- View changelog
+
+=========================================
+
+Version 1.1.0
+2026-06-30
+
+[NEW]
+- Auto download module
+- Module temporary execution
+- Online changelog
+
+[IMPROVED]
+- Faster startup
+- Better menu layout
+- Better download progress
+
+[FIXED]
+- Fixed license validation
+- Fixed update process
+- Fixed thumbnail download
+
+=========================================
