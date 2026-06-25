@@ -56,7 +56,7 @@ run_yt() {
 }
 
 run_audio() {
-  yt-dlp -f "ba/b" -x --audio-format "$AFORMAT" \
+  yt-dlp -x --audio-format "$AFORMAT" \
   $THUMB_OPT $META_OPT "${PROGRESS_OPT[@]}" \
   -o "$WORKDIR/%(title).80s [%(id)s].%(ext)s" "$@"
 }
