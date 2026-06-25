@@ -1,162 +1,83 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-WORKDIR="$HOME/MediaMatrix"
+clear
+echo "===================================="
+echo " 🚀 MediaMatrix Installer"
+echo "===================================="
+
+# =========================
+# CONFIG
+# =========================
 ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2UycGhyZWFrZXIvbXlyZXBvL21haW4="
 REPO=$(printf '%s' "$ENC_REPO" | base64 -d 2>/dev/null)
 [ -z "$REPO" ] && echo "❌ Repo decode gagal" && exit 1
 
+WORKDIR="$HOME/MediaMatrix"
+LICENSE_URL="$REPO/licenses.json"
 LICENSE_FILE="$HOME/.mediamatrix_license"
-VERSION_FILE="$WORKDIR/.version"
-LOCAL_HASH_FILE="$WORKDIR/.hash"
-
-VERSION_URL="$REPO/version.txt"
-CHANGELOG_URL="$REPO/changelog.txt"
 
 # =========================
-# LOAD VERSION
+# LICENSE CHECK
 # =========================
-VERSION="1.0"
-[ -f "$VERSION_FILE" ] && VERSION=$(cat "$VERSION_FILE")
+echo ""
+echo "🔐 License Required"
 
-# =========================
-# WARNA
-# =========================
-RED="\e[31m"
-GREEN="\e[32m"
-YELLOW="\e[33m"
-CYAN="\e[36m"
-RESET="\e[0m"
+if [ ! -f "$LICENSE_FILE" ] || [ ! -s "$LICENSE_FILE" ]; then
+    read -p "Masukkan license key: " USER_KEY
+    echo "$USER_KEY" > "$LICENSE_FILE"
+else
+    USER_KEY=$(cat "$LICENSE_FILE")
+fi
 
-BOX_WIDTH=36
+# validasi kosong
+if [ -z "$USER_KEY" ]; then
+    echo "❌ License kosong!"
+    rm -f "$LICENSE_FILE"
+    exit 1
+fi
 
-print_center() {
-    local text="$1"
-    printf "${CYAN}║${RESET} %-${BOX_WIDTH}s ${CYAN}║${RESET}\n" \
-        "$(printf "%*s%s%*s" \
-        $(( (${#text}+BOX_WIDTH)/2 )) "" "$text" \
-        $(( BOX_WIDTH-${#text}-(((${#text}+BOX_WIDTH)/2)) )) "")"
-}
+echo "🔍 Validating license..."
 
-print_left() {
-    local text="$1"
-    printf "${CYAN}║${RESET} %-36s ${CYAN}║${RESET}\n" "$text"
-}
+MAX_RETRY=3
+COUNT=0
 
-# =========================
-# LICENSE SYSTEM (FINAL)
-# =========================
-validate_license() {
-    LICENSE_URL="$REPO/licenses.json"
+while true; do
+    DATA=$(curl -s "$LICENSE_URL")
 
-    MAX_RETRY=3
-    COUNT=0
+    [ -z "$DATA" ] && echo "❌ Tidak bisa konek ke server" && exit 1
 
-    while true; do
-        if [ -f "$LICENSE_FILE" ] && [ -s "$LICENSE_FILE" ]; then
-            USER_KEY=$(cat "$LICENSE_FILE")
-            DISPLAY_KEY="$USER_KEY"
-        else
-            read -p "Masukkan license key: " USER_KEY
-        fi
+    KEY_DATA=$(echo "$DATA" | awk "/\"$USER_KEY\"/,/}/")
 
-        [ -z "$USER_KEY" ] && echo "❌ License kosong!" && return 1
-
-        DATA=$(curl -s "$LICENSE_URL")
-        [ -z "$DATA" ] && echo "❌ Tidak bisa konek ke server" && return 1
-
-        KEY_DATA=$(echo "$DATA" | awk "/\"$USER_KEY\"/,/}/")
-
-        if [ -z "$KEY_DATA" ]; then
+    if [ -z "$KEY_DATA" ]; then
     echo "❌ License tidak valid"
     rm -f "$LICENSE_FILE"
-else
-    STATUS=$(echo "$KEY_DATA" | grep status | head -n1 | cut -d '"' -f4)
+    COUNT=$((COUNT+1))
 
-    if [ "$STATUS" != "active" ]; then
-        echo "🚫 License revoked"
-        rm -f "$LICENSE_FILE"
-    else
-        echo "$USER_KEY" > "$LICENSE_FILE"
-        break
-    fi
-fi
-
-        COUNT=$((COUNT+1))
-        if [ "$COUNT" -ge "$MAX_RETRY" ]; then
-            echo "❌ Gagal 3x. Coba lagi nanti."
-            return 1
-        fi
-    done
-
-    STATUS=$(echo "$KEY_DATA" | grep status | head -n1 | cut -d '"' -f4)
-    EXPIRY=$(echo "$KEY_DATA" | grep expiry | head -n1 | cut -d '"' -f4)
-
-    NOW_SEC=$(date +%s)
-
-if [[ "$EXPIRY" == "lifetime" ]]; then
-    DAYS_LEFT="∞"
-
-elif [[ "$EXPIRY" == *d ]]; then
-    # contoh: 30d
-    DAYS=${EXPIRY%d}
-
-    HASH_KEY=$(echo -n "$USER_KEY" | md5sum | cut -c1-8)
-FIRST_USE_FILE="$WORKDIR/.lic_$HASH_KEY"
-
-    if [ ! -f "$FIRST_USE_FILE" ]; then
-    if [ -f "$WORKDIR/.installed" ]; then
-
-        echo ""
-        echo "===================================="
-        echo "      TRIAL TIDAK VALID"
-        echo "===================================="
-        echo ""
-        echo "❌ Trial tidak valid (reset terdeteksi)"
-        echo ""
-        echo "1. Hapus license"
-        echo "2. Keluar"
-        echo ""
-
-        read -p "Pilih [1-2]: " MENU
-
-        case "$MENU" in
-            1)
-                rm -f "$LICENSE_FILE"
-                echo "✅ License berhasil dihapus."
-                ;;
-            2)
-                ;;
-        esac
-
-        return 1
+    if [ "$COUNT" -ge "$MAX_RETRY" ]; then
+        echo "❌ Gagal 3x. Keluar."
+        exit 1
     fi
 
-    date +%s > "$FIRST_USE_FILE"
-    touch "$WORKDIR/.installed"
+    read -p "Masukkan license key lagi: " USER_KEY
+
+    echo "$USER_KEY" > "$LICENSE_FILE"   # ← TAMBAHKAN INI
+
+    continue
 fi
 
-    START=$(cat "$FIRST_USE_FILE")
-    EXP_SEC=$((START + DAYS * 86400))
-    DAYS_LEFT=$(( (EXP_SEC - NOW_SEC) / 86400 ))
+    break
+done
 
-else
-    # format tanggal normal
-    EXP_SEC=$(date -d "$EXPIRY" +%s 2>/dev/null)
+STATUS=$(echo "$KEY_DATA" | grep status | cut -d '"' -f4)
+EXPIRY=$(echo "$KEY_DATA" | grep expiry | cut -d '"' -f4)
 
-    if [ -z "$EXP_SEC" ]; then
-        echo "❌ Format expiry invalid"
-        return 1
-    fi
+TODAY=$(date +%Y-%m-%d)
 
-    DAYS_LEFT=$(( (EXP_SEC - NOW_SEC) / 86400 ))
-fi
+[ "$STATUS" != "active" ] && echo "🚫 License revoked" && exit 1
 
-# =========================
-# VALIDASI EXPIRED
-# =========================
-if [[ "$EXPIRY" != "lifetime" && "$NOW_SEC" -gt "$EXP_SEC" ]]; then
+if [[ "$TODAY" > "$EXPIRY" ]]; then
 
-    clear
+    echo ""
     echo "===================================="
     echo "      LICENSE EXPIRED"
     echo "===================================="
@@ -170,6 +91,7 @@ if [[ "$EXPIRY" != "lifetime" && "$NOW_SEC" -gt "$EXP_SEC" ]]; then
     read -p "Pilih [1-2]: " MENU
 
     case "$MENU" in
+
         1)
             rm -f "$LICENSE_FILE"
             echo "✅ License berhasil dihapus."
@@ -181,278 +103,102 @@ if [[ "$EXPIRY" != "lifetime" && "$NOW_SEC" -gt "$EXP_SEC" ]]; then
             ;;
     esac
 
-    return 1
-fi
-
-    [ "$STATUS" != "active" ] && echo "🚫 License revoked" && return 1
-
-    SERVER_DEVICE=$(echo "$KEY_DATA" | grep '"device"' | head -n1 | cut -d '"' -f4)
-
-    if [ -z "$SERVER_DEVICE" ]; then
-        DEVICE_ID=$(getprop ro.product.model 2>/dev/null)
-        [ -z "$DEVICE_ID" ] && DEVICE_ID="unknown-device"
-
-        echo "🔗 Device belum terdaftar"
-        echo ""
-        echo "📱 Device kamu: $DEVICE_ID"
-        echo "🔑 License: $USER_KEY"
-        echo ""
-        echo "\"$USER_KEY\": {"
-        echo "  \"expiry\": \"$EXPIRY\","
-        echo "  \"status\": \"active\","
-        echo "  \"device\": \"$DEVICE_ID\""
-        echo "}"
-        echo ""
-        echo "👉 Hubungi Pengembang:"
-        return 1
-    fi
-
-    if [[ "$EXPIRY" == "lifetime" ]]; then
-    LICENSE_INFO="🔓 Lifetime License ♾"
-elif [[ "$EXPIRY" == *d ]]; then
-    LICENSE_INFO="🔓 Trial License | ⏳ $DAYS_LEFT hari"
-else
-    LICENSE_INFO="🔓 License OK | Exp: $EXPIRY | ⏳ $DAYS_LEFT hari"
-fi
-    return 0
-}
-
-# =========================
-# AUTO UPDATE
-# =========================
-check_update() {
-    echo ""
-    echo "🔍 Mengecek update..."
-
-    latest=$(curl -s "$REPO/version.txt")
-
-    echo ""
-    echo "📦 Versi lokal : $VERSION"
-    echo "🌐 Versi terbaru: $latest"
-
-    if [ "$latest" != "$VERSION" ]; then
-        echo -e "${YELLOW}⚠️ Update tersedia!${RESET}"
-
-        echo ""
-        echo "========== CHANGELOG =========="
-        curl -fsSL "$CHANGELOG_URL"
-        echo "==============================="
-        echo ""
-
-        read -p "Update sekarang? (y/n): " confirm
-
-        if [[ $confirm =~ ^[Yy]$ ]]; then
-
-            echo "⬇️ Mengupdate..."
-
-            cd "$WORKDIR" || exit
-
-            curl -fLo matrix "$REPO/matrix"
-
-            chmod +x matrix
-
-            echo "$latest" > "$VERSION_FILE"
-
-            echo -e "${GREEN}✅ Update selesai${RESET}"
-            echo "🔁 Jalankan ulang: matrix"
-            exit 0
-        fi
-    else
-        echo -e "${GREEN}✅ Sudah versi terbaru${RESET}"
-    fi
-}
-
-view_changelog() {
-
-    clear
-
-    echo "========== CHANGELOG =========="
-    echo ""
-
-    curl -fsSL "$CHANGELOG_URL"
-
-    echo ""
-}
-
-# =========================
-# START SYSTEM
-# =========================
-if ! validate_license; then
-    echo "❌ License tidak valid"
     exit 1
+
+fi
+
+echo "✅ License valid"
+
+# =========================
+# STORAGE PERMISSION
+# =========================
+if [ ! -d "$HOME/storage" ]; then
+    echo "📂 Setup storage permission..."
+    termux-setup-storage
 fi
 
 # =========================
-# MENU
+# UPDATE SYSTEM
 # =========================
-draw_menu() {
-    clear
-    echo "╔══════════════════════════════════════╗"
-
-    print_center "🎛️ MediaMatrix Suite"
-    print_center "👤 Author Asep Rianto"
-    print_center "⚙️ Powered by FFmpeg"
-
-    echo "╠══════════════════════════════════════╣"
-
-    print_left "1) 🎵 AudioMatrix Pro"
-    print_left "2) 🎬 VideoMatrix Pro"
-    print_left "3) 📺 StreamMatrix Pro"
-    print_left "4) 🔁 LoopMatrix Pro"
-    print_left "5) 🔑 Kelola License"
-    print_left "6) 📜 Lihat Changelog"
-
-    echo "╠══════════════════════════════════════╣"
-
-    print_left "0) ❌ Keluar"
-
-    echo "╚══════════════════════════════════════╝"
-}
+echo ""
+echo "📦 Updating system..."
+apt update -y && apt upgrade -y
 
 # =========================
-# LOOP
+# INSTALL DEPENDENCIES
 # =========================
-while true; do
-    if ! validate_license; then
-        sleep 1
-        continue
-    fi
+echo ""
+echo "📦 Installing dependencies..."
+apt install -y python ffmpeg curl bc
 
-    draw_menu
-    echo ""
-    read -p "Pilih menu: " menu
+# =========================
+# INSTALL YT-DLP
+# =========================
+if ! command -v yt-dlp >/dev/null 2>&1; then
+    echo "⬇️ Installing yt-dlp..."
+    pip install -U yt-dlp
+else
+    echo "✅ yt-dlp already installed"
+fi
 
-    case $menu in
-        1)
-            clear
-            TMP_FILE="$WORKDIR/.audio"
-            echo "⬇️ Downloading AudioMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
-                echo "❌ Gagal download AudioMatrix."
-                read -p "ENTER..."
-                break
-            }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
-            ;;
-        2)
-            clear
-            TMP_FILE="$WORKDIR/.video"
-            echo "⬇️ Downloading VideoMatrix..."
-            curl -fsSL "$REPO/video" -o "$TMP_FILE" || {
-                echo "❌ Gagal download VideoMatrix."
-                read -p "ENTER..."
-                break
-            }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
-            ;;
-        3)
-            clear
-            TMP_FILE="$WORKDIR/.yt"
-            echo "⬇️ Downloading StreamMatrix..."
-            curl -fsSL "$REPO/yt" -o "$TMP_FILE" || {
-                echo "❌ Gagal download StreamMatrix."
-                read -p "ENTER..."
-                break
-            }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
-            ;;
-        4)
-            clear
-            TMP_FILE="$WORKDIR/.loop"
-            echo "⬇️ Downloading LoopMatrix..."
-            curl -fsSL "$REPO/loop" -o "$TMP_FILE" || {
-                echo "❌ Gagal download LoopMatrix."
-                read -p "ENTER..."
-                break
-            }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
-            ;;
-        5)
-    while true; do
-        clear
-        echo "🔐 Kelola License"
-        echo "----------------------"
-        echo "1) Ganti License"
-        echo "2) Reset License"
-        echo "0) Kembali"
-        echo ""
+# =========================
+# CREATE WORKDIR
+# =========================
+mkdir -p "$WORKDIR"
+cd "$WORKDIR" || exit
 
-        read -p "Pilih: " sub
+# =========================
+# DOWNLOAD SCRIPT
+# =========================
+echo ""
+echo "⬇️ Downloading MediaMatrix tools..."
 
-        case $sub in
-            1)
-                clear
-                echo "🔑 Ganti License"
-                echo ""
+curl -fLo matrix "$REPO/matrix" || { echo "❌ Gagal download launcher"; exit 1; }
 
-                read -p "Masukkan license baru: " NEW_KEY
+# =========================
+# FIX LINE ENDING
+# =========================
+sed -i 's/\r$//' matrix
 
-                if [ -z "$NEW_KEY" ]; then
-                    echo "❌ License kosong!"
-                    sleep 1
-                    continue
-                fi
-
-                # hapus lama + simpan baru
-                rm -f "$LICENSE_FILE"
-                echo "$NEW_KEY" > "$LICENSE_FILE"
-
-                echo ""
-                echo "🔄 Validasi license..."
-
-                if ! validate_license; then
-                   echo "❌ License tidak valid"
-                   rm -f "$LICENSE_FILE"
-                   sleep 2
-                   continue
-                fi
-
-                echo "✅ License berhasil diganti"
-                sleep 1
-                ;;
-            
-            2)
-                clear
-                echo "♻️ Reset License"
-                echo ""
-
-                rm -f "$LICENSE_FILE"
-
-                echo "✅ License berhasil dihapus"
-                echo "🔁 Jalankan ulang aplikasi untuk input license baru"
-                sleep 2
-                ;;
-            
-            0)
-                break
-                ;;
-            
-            *)
-                echo "❌ Pilihan tidak valid"
-                sleep 1
-                ;;
-        esac
-    done
-    ;;
-        6)
-            view_changelog
-            read -p "ENTER untuk kembali..."
-            ;;
-        0)
-            echo -e "${RED}Keluar...${RESET}"
-            break
-            ;;
-        *)
-            echo -e "${RED}❌ Pilihan tidak valid${RESET}"
-            sleep 1
-            ;;
-    esac
+# cek apakah download berhasil
+for f in matrix; do
+    [ ! -f "$f" ] && echo "❌ Gagal download $f" && exit 1
 done
+
+# kasih permission execute
+chmod +x matrix
+
+echo "✅ Permission berhasil di-set"
+
+# version awal
+curl -fsSL "$REPO/version.txt" > "$WORKDIR/.version"
+
+# =========================
+# SET ALIAS
+# =========================
+echo ""
+echo "⚙️ Setting alias..."
+
+BASHRC="$HOME/.bashrc"
+
+sed -i '/alias matrix=/d' "$BASHRC"
+
+echo "alias matrix='$WORKDIR/matrix'" >> "$BASHRC"
+
+source "$BASHRC"
+
+# =========================
+# DONE
+# =========================
+clear
+echo "===================================="
+echo " ✅ INSTALLATION COMPLETE"
+echo "===================================="
+echo ""
+echo "📦 MediaMatrix berhasil diinstall!"
+echo ""
+echo "👉 Jalankan dengan perintah:"
+echo ""
+echo "   matrix"
+echo ""
+echo "===================================="
