@@ -1,7 +1,4 @@
-MediaMatrix v1.0
-
-[NEW]
-- Initial Release
+MediaMatrix v1.1
 
 [FEATURE]
 - AudioMatrix
