@@ -87,7 +87,29 @@ FIRST_USE_FILE="$WORKDIR/.lic_$HASH_KEY"
 
     if [ ! -f "$FIRST_USE_FILE" ]; then
     if [ -f "$WORKDIR/.installed" ]; then
+
+        echo ""
+        echo "===================================="
+        echo "      TRIAL TIDAK VALID"
+        echo "===================================="
+        echo ""
         echo "❌ Trial tidak valid (reset terdeteksi)"
+        echo ""
+        echo "1. Hapus license"
+        echo "2. Keluar"
+        echo ""
+
+        read -p "Pilih [1-2]: " MENU
+
+        case "$MENU" in
+            1)
+                rm -f "$LICENSE_FILE"
+                echo "✅ License berhasil dihapus."
+                ;;
+            2)
+                ;;
+        esac
+
         return 1
     fi
 
