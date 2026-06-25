@@ -1,7 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 WORKDIR="$HOME/MediaMatrix"
-REPO="https://raw.githubusercontent.com/e2phreaker/myrepo/main"
+ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2UycGhyZWFrZXIvbXlyZXBvL21haW4="
+REPO=$(printf '%s' "$ENC_REPO" | base64 -d 2>/dev/null)
+
+[ -z "$REPO" ] && {
+    echo "Repo decode gagal"
+    exit 1
+}
 LICENSE_FILE="$HOME/.mediamatrix_license"
 
 validate_license() {
