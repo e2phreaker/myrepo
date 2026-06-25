@@ -147,6 +147,13 @@ read -p "Pilih: " mode
 # =========================
 if [ "$mode" = "1" ]; then
 
+  echo ""
+  echo "========== MANUAL MODE =========="
+  echo "Cut  = Durasi awal video yang dipindahkan ke akhir."
+  echo "Fade = Durasi transisi agar sambungan terlihat mulus."
+  echo "Tips : Fade sebaiknya lebih kecil dari Cut."
+  echo ""
+
   read -p "Cut (detik): " CUT
   read -p "Fade (detik): " FADE
 
