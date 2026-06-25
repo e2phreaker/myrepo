@@ -232,13 +232,9 @@ check_update() {
 
             cd "$WORKDIR" || exit
 
-            curl -fLo audio "$REPO/audio"
-            curl -fLo video "$REPO/video"
-            curl -fLo yt "$REPO/yt"
-            curl -fLo loop "$REPO/loop"
             curl -fLo matrix "$REPO/matrix"
 
-            chmod +x audio video yt loop matrix
+            chmod +x matrix
 
             echo "$latest" > "$VERSION_FILE"
 
@@ -310,11 +306,59 @@ while true; do
     read -p "Pilih menu: " menu
 
     case $menu in
-        1) clear; "$WORKDIR/audio" ;;
-        2) clear; "$WORKDIR/video" ;;
-        3) clear; "$WORKDIR/yt" ;;
-        4) clear; "$WORKDIR/loop" ;;
-        8)
+        1)
+            clear
+            TMP_FILE="$WORKDIR/.audio"
+            echo "⬇️ Downloading AudioMatrix..."
+            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+                echo "❌ Gagal download AudioMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        2)
+            clear
+            TMP_FILE="$WORKDIR/.video"
+            echo "⬇️ Downloading VideoMatrix..."
+            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+                echo "❌ Gagal download VideoMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        3)
+            clear
+            TMP_FILE="$WORKDIR/.yt"
+            echo "⬇️ Downloading StreamMatrix..."
+            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+                echo "❌ Gagal download StreamMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        4)
+            clear
+            TMP_FILE="$WORKDIR/.loop"
+            echo "⬇️ Downloading LoopMatrix..."
+            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+                echo "❌ Gagal download LoopMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        5)
     while true; do
         clear
         echo "🔐 Kelola License"
@@ -381,12 +425,7 @@ while true; do
         esac
     done
     ;;
-        9)
-            check_update
-            echo ""
-            read -p "ENTER untuk kembali..."
-            ;;
-        10)
+        6)
             view_changelog
             read -p "ENTER untuk kembali..."
             ;;
