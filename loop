@@ -153,6 +153,11 @@ if [ "$mode" = "1" ]; then
   echo "Fade = Durasi transisi agar sambungan terlihat mulus."
   echo "Tips : Fade sebaiknya lebih kecil dari Cut."
   echo ""
+  echo "Contoh:"
+  echo "Video 10 detik"
+  echo "Cut  = 2  → 2 detik awal dipindahkan ke akhir."
+  echo "Fade = 1  → Transisi 1 detik agar lebih seamless."
+  echo ""
 
   read -p "Cut (detik): " CUT
   read -p "Fade (detik): " FADE
