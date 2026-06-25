@@ -6,8 +6,8 @@ MediaMatrix v1.0
 [FEATURE]
 - AudioMatrix
 - VideoMatrix
+- StreamMatrix 
 - LoopMatrix
-- YT Matrix
 
 [FIX]
 - None
