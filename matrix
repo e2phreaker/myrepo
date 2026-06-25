@@ -9,6 +9,9 @@ LICENSE_FILE="$HOME/.mediamatrix_license"
 VERSION_FILE="$WORKDIR/.version"
 LOCAL_HASH_FILE="$WORKDIR/.hash"
 
+VERSION_URL="$REPO/version.txt"
+CHANGELOG_URL="$REPO/changelog.txt"
+
 # =========================
 # LOAD VERSION
 # =========================
@@ -215,9 +218,16 @@ check_update() {
     if [ "$latest" != "$VERSION" ]; then
         echo -e "${YELLOW}⚠️ Update tersedia!${RESET}"
 
+        echo ""
+        echo "========== CHANGELOG =========="
+        curl -fsSL "$CHANGELOG_URL"
+        echo "==============================="
+        echo ""
+
         read -p "Update sekarang? (y/n): " confirm
 
-        if [[ $confirm == "y" ]]; then
+        if [[ $confirm =~ ^[Yy]$ ]]; then
+
             echo "⬇️ Mengupdate..."
 
             cd "$WORKDIR" || exit
