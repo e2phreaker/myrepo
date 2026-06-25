@@ -322,7 +322,7 @@ while true; do
             clear
             TMP_FILE="$WORKDIR/.video"
             echo "⬇️ Downloading VideoMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+            curl -fsSL "$REPO/video" -o "$TMP_FILE" || {
                 echo "❌ Gagal download VideoMatrix."
                 read -p "ENTER..."
                 break
@@ -335,7 +335,7 @@ while true; do
             clear
             TMP_FILE="$WORKDIR/.yt"
             echo "⬇️ Downloading StreamMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+            curl -fsSL "$REPO/yt" -o "$TMP_FILE" || {
                 echo "❌ Gagal download StreamMatrix."
                 read -p "ENTER..."
                 break
@@ -348,7 +348,7 @@ while true; do
             clear
             TMP_FILE="$WORKDIR/.loop"
             echo "⬇️ Downloading LoopMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+            curl -fsSL "$REPO/loop" -o "$TMP_FILE" || {
                 echo "❌ Gagal download LoopMatrix."
                 read -p "ENTER..."
                 break
