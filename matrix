@@ -27,6 +27,21 @@ YELLOW="\e[33m"
 CYAN="\e[36m"
 RESET="\e[0m"
 
+BOX_WIDTH=36
+
+print_center() {
+    local text="$1"
+    printf "${CYAN}║${RESET} %-${BOX_WIDTH}s ${CYAN}║${RESET}\n" \
+        "$(printf "%*s%s%*s" \
+        $(( (${#text}+BOX_WIDTH)/2 )) "" "$text" \
+        $(( BOX_WIDTH-${#text}-(((${#text}+BOX_WIDTH)/2)) )) "")"
+}
+
+print_left() {
+    local text="$1"
+    printf "${CYAN}║${RESET} %-36s ${CYAN}║${RESET}\n" "$text"
+}
+
 # =========================
 # LICENSE SYSTEM (FINAL)
 # =========================
@@ -272,23 +287,26 @@ fi
 # =========================
 draw_menu() {
     clear
-    echo -e "${GREEN}$LICENSE_INFO${RESET}"
-    echo -e "${YELLOW}🔑 License: $DISPLAY_KEY${RESET}"
-    echo ""
-    echo -e "${CYAN}╔══════════════════════════════╗${RESET}"
-    echo -e "${CYAN}║   🎛️ MediaMatrix Suite        ║${RESET}"
-    echo -e "${CYAN}║${RESET} 👤 Author Asep Rianto  ${CYAN}║${RESET}"
-echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ║${RESET}"
-    echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}1) 🎵 AudioMatrix Pro${RESET}      ${CYAN}║${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}2) 🎬 VideoMatrix Pro${RESET}      ${CYAN}║${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}3) 📺 StreamMatrix Pro${RESET}     ${CYAN}║${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}║${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}5) 🔑 Kelola License${RESET}     ${CYAN}║${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}6) 📜 Lihat Changelog${RESET}           ${CYAN}║${RESET}"
-    echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
-    echo -e "${CYAN}║${RESET} ${RED}0) ❌ Keluar${RESET}                ${CYAN}║${RESET}"
-    echo -e "${CYAN}╚══════════════════════════════╝${RESET}"
+    echo "╔══════════════════════════════════════╗"
+
+    print_center "🎛️ MediaMatrix Suite"
+    print_center "👤 Author Asep Rianto"
+    print_center "⚙️ Powered by FFmpeg"
+
+    echo "╠══════════════════════════════════════╣"
+
+    print_left "1) 🎵 AudioMatrix Pro"
+    print_left "2) 🎬 VideoMatrix Pro"
+    print_left "3) 📺 StreamMatrix Pro"
+    print_left "4) 🔁 LoopMatrix Pro"
+    print_left "5) 🔑 Kelola License"
+    print_left "6) 📜 Lihat Changelog"
+
+    echo "╠══════════════════════════════════════╣"
+
+    print_left "0) ❌ Keluar"
+
+    echo "╚══════════════════════════════════════╝"
 }
 
 # =========================
