@@ -32,11 +32,9 @@ validate_license
 # BARU SCRIPT UTAMA
 # ==========================
 
-echo "Audio module jalan..."
+echo "Reverse module jalan..."
 
 WORKDIR="/sdcard/MediaMatrix"
-
-# buat folder kalau belum ada
 mkdir -p "$WORKDIR"
 
 # =========================
