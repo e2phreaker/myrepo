@@ -1,0 +1,239 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+WORKDIR="$HOME/MediaMatrix"
+ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2UycGhyZWFrZXIvbXlyZXBvL21haW4="
+REPO=$(printf '%s' "$ENC_REPO" | base64 -d 2>/dev/null)
+
+[ -z "$REPO" ] && {
+    echo "Repo decode gagal"
+    exit 1
+}
+LICENSE_FILE="$HOME/.mediamatrix_license"
+
+validate_license() {
+    LICENSE_URL="$REPO/licenses.json"
+
+    [ ! -f "$LICENSE_FILE" ] && echo "❌ License tidak ditemukan" && exit 1
+
+    USER_KEY=$(cat "$LICENSE_FILE")
+    [ -z "$USER_KEY" ] && echo "❌ License kosong" && exit 1
+
+    DATA=$(curl -s "$LICENSE_URL")
+    [ -z "$DATA" ] && echo "❌ Tidak bisa konek ke server" && exit 1
+
+    KEY_DATA=$(echo "$DATA" | grep -A5 "\"$USER_KEY\"")
+    [ -z "$KEY_DATA" ] && echo "❌ License tidak valid" && exit 1
+}
+
+# 🔴 WAJIB DI SINI (SEBELUM APAPUN)
+validate_license
+
+# ==========================
+# BARU SCRIPT UTAMA
+# ==========================
+
+echo "Ping-Pong module jalan..."
+
+WORKDIR="/sdcard/MediaMatrix"
+mkdir -p "$WORKDIR"
+
+clear
+echo "======================================"
+echo " 🏓 Ping-Pong Pro"
+echo "======================================"
+echo "📁 Workdir: $WORKDIR"
+echo ""
+
+# =========================
+# 1. PILIH FILE INPUT
+# =========================
+mapfile -t FILE_LIST < <(find "$WORKDIR" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.mov" \))
+
+if [ ${#FILE_LIST[@]} -eq 0 ]; then
+  echo "❌ Tidak ada file video di $WORKDIR!"
+  exit 1
+fi
+
+echo "📂 Pilih file video sumber (8s - 15s direkomendasikan):"
+for i in "${!FILE_LIST[@]}"; do
+  echo "$((i+1))) $(basename "${FILE_LIST[$i]}")"
+done
+echo ""
+
+while true; do
+  read -p "Pilih nomor: " num
+  if ! [[ "$num" =~ ^[0-9]+$ ]] || [ "$num" -lt 1 ] || [ "$num" -gt "${#FILE_LIST[@]}" ]; then
+    echo "❌ Nomor tidak valid, silakan coba lagi."
+    continue
+  fi
+  break
+done
+
+INPUT="${FILE_LIST[$((num-1))]}"
+echo "✅ Dipilih: $(basename "$INPUT")"
+echo ""
+
+# =========================
+# 2. PILIH MODE PING-PONG
+# =========================
+echo "🎛️ Pilih Mode Ping-Pong:"
+echo "1) ⏩ Klasik (Maju Normal ➡️ Mundur Normal)"
+echo "2) 🎚️ DJ Stutter (Pola kompleks patah-patah natural)"
+echo "3) 🪃 Boomerang Flash (Bolak-balik cepat di ujung video)"
+echo "4) 💓 Heartbeat (Maju 2 langkah, mundur 1 langkah)"
+echo "5) 🐢 Slow-Mo Reverse (Maju Normal ➡️ Mundur Lambat 0.5x)"
+echo ""
+
+while true; do
+  read -p "Pilih mode [1-5]: " MODE
+  if [[ ! "$MODE" =~ ^[1-5]$ ]]; then
+    echo "❌ Mode tidak valid, masukkan angka 1-5."
+    continue
+  fi
+  break
+done
+echo ""
+
+# =========================
+# 3. INPUT DURASI TARGET (LOOP SISTEM)
+# =========================
+while true; do
+  echo "⏱️ Format Durasi Output:"
+  echo "   - Detik       : 45s"
+  echo "   - Menit       : 1m"
+  echo "   - Menit&Detik : 5m30s"
+  echo "   - Jam         : 1h"
+  echo "   - Jam,Men,Det : 1h15m30s"
+  echo ""
+  read -p "Masukkan target durasi akhir: " RAW_DURATION
+
+  # Bersihkan spasi jika pengguna tidak sengaja mengetik spasi
+  RAW_DURATION=$(echo "$RAW_DURATION" | tr -d '[:space:]')
+
+  # Validasi format menggunakan Regex
+  if [[ ! "$RAW_DURATION" =~ ^([0-9]+h)?([0-9]+m)?([0-9]+s)?$ ]] || [ -z "$RAW_DURATION" ]; then
+      echo "❌ Format durasi salah! Silakan coba lagi (contoh: 5m30s)."
+      sleep 1.5
+      echo ""
+      continue
+  fi
+
+  # Ekstrak angka jam, menit, dan detik
+  h=0; m=0; s=0
+  if [[ $RAW_DURATION =~ ([0-9]+)h ]]; then h="${BASH_REMATCH[1]}"; fi
+  if [[ $RAW_DURATION =~ ([0-9]+)m ]]; then m="${BASH_REMATCH[1]}"; fi
+  if [[ $RAW_DURATION =~ ([0-9]+)s ]]; then s="${BASH_REMATCH[1]}"; fi
+
+  # Konversi total durasi ke detik
+  TARGET_DURATION=$((h * 3600 + m * 60 + s))
+
+  if [ "$TARGET_DURATION" -eq 0 ]; then
+      echo "❌ Durasi tidak boleh 0! Silakan masukkan waktu yang valid."
+      sleep 1.5
+      echo ""
+      continue
+  fi
+
+  echo "✅ Durasi ditetapkan: $TARGET_DURATION detik"
+  break
+done
+
+echo ""
+echo "⏳ TAHAP 1: Membangun pola dasar..."
+
+DATE=$(date +%Y%m%d_%H%M%S)
+TMP_BASE="$WORKDIR/tmp_base_${DATE}.mp4"
+FINAL_OUT="$WORKDIR/pingpong_final_${DATE}.mp4"
+LIST_FILE="$WORKDIR/list_${DATE}.txt"
+
+DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$INPUT")
+
+# =========================
+# PROSES BERDASARKAN MODE
+# =========================
+if [ "$MODE" = "1" ]; then
+    ffmpeg -y -i "$INPUT" -filter_complex \
+    "[0:v]reverse[r];[0:v][r]concat=n=2:v=1:a=0[out]" \
+    -map "[out]" -c:v libx264 -crf 18 -preset fast -an "$TMP_BASE" \
+    -v error -progress pipe:1 | while read -r line; do
+        if [[ "$line" == out_time=* ]]; then
+            TIME_ONLY=$(echo "${line#out_time=}" | cut -d'.' -f1)
+            echo -ne "\r⚙️ Proses dasar: $TIME_ONLY"
+        fi
+    done
+    echo ""
+
+elif [ "$MODE" = "5" ]; then
+    ffmpeg -y -i "$INPUT" -filter_complex \
+    "[0:v]reverse,setpts=2.0*PTS[r];[0:v][r]concat=n=2:v=1:a=0[out]" \
+    -map "[out]" -c:v libx264 -crf 18 -preset fast -an "$TMP_BASE" \
+    -v error -progress pipe:1 | while read -r line; do
+        if [[ "$line" == out_time=* ]]; then
+            TIME_ONLY=$(echo "${line#out_time=}" | cut -d'.' -f1)
+            echo -ne "\r⚙️ Proses dasar: $TIME_ONLY"
+        fi
+    done
+    echo ""
+
+else
+    SLICE_DUR=$(echo "$DURATION / 8" | bc -l)
+    
+    for i in {1..8}; do
+        echo -ne "\r⚙️ Memotong segmen: $i dari 8..."
+        START=$(echo "($i - 1) * $SLICE_DUR" | bc -l)
+        
+        ffmpeg -y -i "$INPUT" -ss "$START" -t "$SLICE_DUR" \
+        -c:v libx264 -preset ultrafast -x264opts keyint=1 -an \
+        "$WORKDIR/seg_f${i}.mp4" -loglevel error
+        
+        ffmpeg -y -i "$WORKDIR/seg_f${i}.mp4" -vf reverse \
+        -c:v libx264 -preset ultrafast -x264opts keyint=1 -an \
+        "$WORKDIR/seg_r${i}.mp4" -loglevel error
+    done
+    echo -e "\n✅ Slicing selesai!"
+
+    if [ "$MODE" = "2" ]; then
+        PATTERN=("f1" "f2" "f3" "f4" "r4" "f4" "r4" "r3" "f3" "f4" "f5" "f6" "r6" "r5" "f5" "f6" "f7" "f8" "r8" "r7" "r6" "r5" "f5" "f6" "r6" "r5" "r4" "r3" "f3" "f4" "f5" "r5" "r4" "r3" "r2" "f2" "f3" "r3" "r2" "r1")
+    elif [ "$MODE" = "3" ]; then
+        PATTERN=("f1" "f2" "f3" "f4" "f5" "f6" "f7" "f8" "r8" "f8" "r8" "f8" "r8" "r7" "r6" "r5" "r4" "r3" "r2" "r1")
+    elif [ "$MODE" = "4" ]; then
+        PATTERN=("f1" "f2" "r2" "f2" "f3" "f4" "r4" "f4" "f5" "f6" "r6" "f6" "f7" "f8" "r8" "r7" "r6" "r5" "r4" "r3" "r2" "r1")
+    fi
+
+    > "$LIST_FILE"
+    for seg in "${PATTERN[@]}"; do
+        echo "file 'seg_${seg}.mp4'" >> "$LIST_FILE"
+    done
+
+    echo -ne "⏳ Menyusun pola..."
+    ffmpeg -y -f concat -safe 0 -i "$LIST_FILE" -c copy "$TMP_BASE" -loglevel error
+    echo -e "\n✅ Pola tersusun!"
+fi
+
+if [ ! -f "$TMP_BASE" ]; then
+    echo "❌ Gagal membuat pola dasar."
+    exit 1
+fi
+
+echo ""
+echo "🚀 TAHAP 2: Looping Final ke Durasi $TARGET_DURATION detik"
+echo "--------------------------------------------------------"
+
+ffmpeg -y -stream_loop -1 -i "$TMP_BASE" -t "$TARGET_DURATION" -c copy "$FINAL_OUT" \
+-v error -progress pipe:1 | while read -r line; do
+    if [[ "$line" == out_time=* ]]; then
+        TIME_ONLY=$(echo "${line#out_time=}" | cut -d'.' -f1)
+        echo -ne "\r⏳ Waktu berjalan: $TIME_ONLY "
+    fi
+done
+
+echo -e "\n--------------------------------------------------------"
+
+rm -f "$TMP_BASE" "$LIST_FILE" "$WORKDIR"/seg_*.mp4 2>/dev/null
+
+if [ -f "$FINAL_OUT" ]; then
+  echo "✅ SUKSES! Video Ping-Pong Loop siap."
+  echo "📁 Output: $FINAL_OUT"
+else
+  echo "❌ Gagal memproses output akhir."
+fi
