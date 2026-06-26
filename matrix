@@ -282,9 +282,10 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}2) 🎬 VideoMatrix Pro${RESET}      ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}3) 📺 StreamMatrix Pro${RESET}     ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}5) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}6) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}7) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}5) ⏪ ReverseMatrix Pro${RESET}    ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}7) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}8) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
     echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${RED}0) ❌ Keluar${RESET}                ${CYAN}${RESET}"
     echo -e "${CYAN}╚══════════════════════════════╝${RESET}"
@@ -357,6 +358,19 @@ while true; do
             rm -f "$TMP_FILE"
             ;;
         5)
+            clear
+            TMP_FILE="$WORKDIR/.reverse"
+            echo "⬇️ Downloading ReverseMatrix..."
+            curl -fsSL "$REPO/reverse" -o "$TMP_FILE" || {
+                echo "❌ Gagal download ReverseMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        6)
     while true; do
         clear
         echo "🔐 Kelola License"
@@ -423,11 +437,11 @@ while true; do
         esac
     done
     ;;
-        6)
+        7)
             view_changelog
             read -p "ENTER untuk kembali..."
             ;;
-        7)
+        8)
             check_update
             echo ""
             read -p "ENTER untuk kembali..."
