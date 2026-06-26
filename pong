@@ -60,7 +60,7 @@ while true; do
     for i in "${!FILE_LIST[@]}"; do
       echo "$((i+1))) $(basename "${FILE_LIST[$i]}")"
     done
-    echo "0) ❌ Keluar / Kembali ke Menu Utama"
+    echo "0) ❌ Keluar"
     echo ""
 
     while true; do
