@@ -56,7 +56,7 @@ while true; do
       exit 1
     fi
 
-    echo "📂 Pilih file video sumber (Min. durasi 6 detik):"
+    echo "📂 Pilih file video sumber (8s - 15s direkomendasikan):"
     for i in "${!FILE_LIST[@]}"; do
       echo "$((i+1))) $(basename "${FILE_LIST[$i]}")"
     done
@@ -91,13 +91,12 @@ while true; do
     echo "3) 🪃 Boomerang Flash (Bolak-balik cepat di ujung video)"
     echo "4) 💓 Heartbeat (Maju 2 langkah, mundur 1 langkah)"
     echo "5) 🐢 Slow-Mo Reverse (Maju Normal ➡️ Mundur Lambat 0.5x)"
-    echo "6) 🧩 Asimetris Presisi (F3s, R1s, F4s, R3s, F2s, R1s)"
     echo ""
 
     while true; do
-      read -p "Pilih mode [1-6]: " MODE
-      if [[ ! "$MODE" =~ ^[1-6]$ ]]; then
-        echo "❌ Mode tidak valid, masukkan angka 1-6."
+      read -p "Pilih mode [1-5]: " MODE
+      if [[ ! "$MODE" =~ ^[1-5]$ ]]; then
+        echo "❌ Mode tidak valid, masukkan angka 1-5."
         continue
       fi
       break
@@ -185,32 +184,6 @@ while true; do
         done
         echo ""
 
-    elif [ "$MODE" = "6" ]; then
-        if (( $(echo "$DURATION < 6.0" | bc -l) )); then
-            echo -e "\n⚠️ Peringatan: Video kurang dari 6 detik, hasil mungkin tidak optimal."
-        fi
-
-        echo -e "\n⚙️ Mengeksekusi pola presisi (F3-R1-F4-R3-F2-R1)..."
-        
-        ffmpeg -y -i "$INPUT" -ss 0 -t 3 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_1.mp4" -loglevel error
-        ffmpeg -y -i "$INPUT" -ss 2 -t 1 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/tmp_2.mp4" -loglevel error
-        ffmpeg -y -i "$WORKDIR/tmp_2.mp4" -vf reverse -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_2.mp4" -loglevel error
-        ffmpeg -y -i "$INPUT" -ss 2 -t 4 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_3.mp4" -loglevel error
-        ffmpeg -y -i "$INPUT" -ss 3 -t 3 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/tmp_4.mp4" -loglevel error
-        ffmpeg -y -i "$WORKDIR/tmp_4.mp4" -vf reverse -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_4.mp4" -loglevel error
-        ffmpeg -y -i "$INPUT" -ss 3 -t 2 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_5.mp4" -loglevel error
-        ffmpeg -y -i "$INPUT" -ss 4 -t 1 -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/tmp_6.mp4" -loglevel error
-        ffmpeg -y -i "$WORKDIR/tmp_6.mp4" -vf reverse -c:v libx264 -preset ultrafast -x264opts keyint=1 -an "$WORKDIR/seg_6.mp4" -loglevel error
-
-        > "$LIST_FILE"
-        for s in 1 2 3 4 5 6; do
-            echo "file 'seg_${s}.mp4'" >> "$LIST_FILE"
-        done
-
-        echo "⏳ Menyatukan kontinuitas waktu..."
-        ffmpeg -y -f concat -safe 0 -i "$LIST_FILE" -c copy "$TMP_BASE" -loglevel error
-        echo "✅ Pola asimetris tersusun!"
-
     else
         SLICE_DUR=$(echo "$DURATION / 8" | bc -l)
         
@@ -267,7 +240,7 @@ while true; do
 
     echo -e "\n--------------------------------------------------------"
 
-    rm -f "$TMP_BASE" "$LIST_FILE" "$WORKDIR"/seg_*.mp4 "$WORKDIR"/tmp_*.mp4 2>/dev/null
+    rm -f "$TMP_BASE" "$LIST_FILE" "$WORKDIR"/seg_*.mp4 2>/dev/null
 
     if [ -f "$FINAL_OUT" ]; then
       echo "✅ SUKSES! Video Ping-Pong Loop siap."
