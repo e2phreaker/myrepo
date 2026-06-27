@@ -429,7 +429,7 @@ while true; do
             TMP_BIN="$WORKDIR/.pong"
             echo "⬇️ Downloading & Encrypting PongMatrix Pro..."
             curl -fsSL "$REPO/pong" -o "$TMP_RAW" || {
-                echo "❌ Gagal download Ping-Pong Pro."
+                echo "❌ Gagal download PongMatrix Pro."
                 read -p "ENTER..."
                 break
             }
