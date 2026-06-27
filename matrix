@@ -415,18 +415,30 @@ while true; do
             rm -f "$TMP_FILE"
             ;;
         7)
-    while true; do
-        clear
-        echo "🔐 Kelola License"
-        echo "----------------------"
-        echo "1) Ganti License"
-        echo "2) Reset License"
-        echo "0) Kembali"
-        echo ""
+            while true; do
+                clear
+                # Ambil data lisensi lokal untuk ditampilkan
+                CURRENT_KEY="Belum ada / Kosong"
+                [ -f "$LICENSE_FILE" ] && CURRENT_KEY=$(cat "$LICENSE_FILE")
 
-        read -p "Pilih: " sub
+                echo "========================================="
+                echo "         INFORMASI LISENSI KAMU          "
+                echo "========================================="
+                echo "🔑 License Key : $CURRENT_KEY"
+                echo "⏳ Expiry      : ${EXPIRY:-Tidak diketahui/Belum cek}"
+                echo "🟢 Status      : ${STATUS:-Tidak aktif}"
+                echo "📱 Device ID   : ${DEVICE_ID:-Belum terdaftar}"
+                echo "📂 File Path   : $LICENSE_FILE"
+                echo "========================================="
+                echo "⚙️ PILIHAN MANAJEMEN:"
+                echo "1) Ganti License (Input Key Baru)"
+                echo "2) Reset / Hapus License Dari HP"
+                echo "0) Kembali ke Menu Utama"
+                echo "========================================="
+                echo ""
+                read -p "Pilihan Kamu [0-2]: " LIC_CHOOSE
 
-        case $sub in
+            case $LIC_CHOOSE in
             1)
                 clear
                 echo "🔑 Ganti License"
