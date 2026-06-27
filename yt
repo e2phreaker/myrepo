@@ -76,7 +76,7 @@ run_thumb() {
 while true; do
   clear
   echo "=============================="
-  echo "   📺 StreamMatrix Pro"
+  echo "   📥 FetchMatrix Pro"
   echo "=============================="
   echo ""
   echo "1) 🎬 Download Video"
