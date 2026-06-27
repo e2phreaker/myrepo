@@ -598,7 +598,6 @@ while true; do
             read -p "ENTER untuk kembali..."
             ;;
         10)
-        10)
             while true; do
                 clear
                 echo -e "${PRIMARY}=========================================${RESET}"
