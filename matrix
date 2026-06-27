@@ -173,7 +173,7 @@ case "$CURRENT_LAYOUT" in
             echo ""
         }
         ;;
-    "modern_future":
+    "modern_future")
         LAYOUT_NAME="Modern Future HUD"
         render_layout() {
             echo -e "  ${PRIMARY}◢◤${RESET} ${TEXT}MEDIAMATRIX SUITE PRO${RESET} ${PRIMARY}◢◤${RESET}"
@@ -189,7 +189,7 @@ case "$CURRENT_LAYOUT" in
             echo -e "  ${RED}❌ [0] Keluar Aplikasi${RESET}"
         }
         ;;
-    "classic_roman":
+    "classic_roman")
         LAYOUT_NAME="Classic Roman Pillar"
         render_layout() {
             echo -e "${PRIMARY}🏛️  ====================================================== 🏛️${RESET}"
@@ -205,7 +205,7 @@ case "$CURRENT_LAYOUT" in
             echo -e "  ${RED}Ⓞ. Keluar Aplikasi${RESET}"
         }
         ;;
-    "hacker_monitor":
+    "hacker_monitor")
         LAYOUT_NAME="Hacker Monitor Info"
         render_layout() {
             echo -e "${PRIMARY}[ MONITOR SYSTEM V.${VERSION} ]${RESET}----------------------------------"
