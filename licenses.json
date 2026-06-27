@@ -24,7 +24,7 @@
 
   "VIP-AC": {
     "expiry": "lifetime",
-    "status": "active",
-    "device": "21081111RG"
+    "status": "revoked",
+    "device": ""
   }
 }
