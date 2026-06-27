@@ -62,7 +62,7 @@ select_file() {
     mapfile -t FILE_LIST < <(find "$WORKDIR" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.webm" -o -iname "*.avi" \))
 
     if [ ${#FILE_LIST[@]} -eq 0 ]; then
-      echo "❌ Tidak ada file!"
+      echo "❌ Tidak ada file video di $WORKDIR!"
       read -p "ENTER..."
       return 1
     fi
