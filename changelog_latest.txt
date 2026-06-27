@@ -2,22 +2,26 @@
 MediaMatrix Changelog
 =========================================
 
-Version 1.2.0
-Released: 2026-06-27
+Version 1.3.0
+Released: 2026-06-28
 
 [NEW]
-- Added StreamMatrix Pro for live streaming (RTMP/RTMPS) with Live Encode CBR and Smart Auto-Reconnect features.
-- Added PongMatrix Pro with 5 dynamic looping modes (Classic, DJ Stutter, Boomerang, Heartbeat, and Slow-Mo).
-- Added real-time clean progress indicators (time-only) for Ping-Pong Loop processing.
-- Added platform support info for streaming (YouTube, Twitch, Facebook, TikTok, Kick, Restream, etc).
+
+- Added Custom Theme & Color Dashboard as a dedicated Module 10 for flexible interface customization.
+- Added support for multiple UI layouts, including Cyberpunk ASCII Logo, Classic Closed Box, and Minimalist Elegant.
+- Added 5 selectable color palettes (Electric Cyan, Classic Green, Neon Magenta, Luxury Yellow, and Flame Red).
+- Implemented an automatic configuration system to save layout and color preferences externally (.theme_layout and .theme_color).
+- Integrated an auto-reload feature (exec bash) to apply the chosen layout and colors instantly without fully exiting the application.
 
 [IMPROVED]
-- Updated matrix launcher menu interface to integrate the new ultimate modules.
-- Enhanced time parsing system to support flexible formats (e.g., 45s, 5m30s, 1h15m30s).
-- Implemented a "Press ENTER to return" loop to prevent the script from exiting immediately after a task finishes.
+
+- Restructured sub-modules 1 through 6 to automatically download raw code, compile seamlessly using SHC, and execute securely within the user's device.
+- Re-aligned the main menu layout to a symmetrical 5-left and 4-right column split to improve readability on mobile screens.
+- Replaced the old "01." menu numbering format with the more modern and stylized "[1]" bracket system.
+- Personalised the launcher menu header by pulling and displaying the device model info dynamically.
 
 [CHANGED]
-- Renamed the video downloader module to "FetchMatrix Pro" to clarify its function and separate it from the new StreamMatrix Pro.
+
+- Moved the theme customization utility out of the License Management menu to its own dedicated main menu slot (Menu 10).
 
 =========================================
-
