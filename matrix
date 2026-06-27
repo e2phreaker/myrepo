@@ -20,13 +20,102 @@ VERSION="1.0"
 [ -f "$VERSION_FILE" ] && VERSION=$(cat "$VERSION_FILE")
 
 # =========================
-# WARNA
+# SYSTEM CONFIG TEMA & WARNA
 # =========================
-RED="\e[31m"
+LAYOUT_FILE="$WORKDIR/.theme_layout"
+COLOR_FILE="$WORKDIR/.theme_color"
+
+# Load konfigurasi bawaan jika file belum ada
+CURRENT_LAYOUT="minimalist"
+CURRENT_COLOR="cyan"
+[ -f "$LAYOUT_FILE" ] && CURRENT_LAYOUT=$(cat "$LAYOUT_FILE")
+[ -f "$COLOR_FILE" ] && CURRENT_COLOR=$(cat "$COLOR_FILE")
+
+RESET="\e[0m"
+
+# 1. ATUR PALET WARNA (Bisa dikombinasikan ke semua bentuk)
+case "$CURRENT_COLOR" in
+    "green")   PRIMARY="\e[32m"; ACCENT="\e[92m"; TEXT="\e[37m"; COLOR_NAME="Classic Green" ;;
+    "magenta") PRIMARY="\e[35m"; ACCENT="\e[95m"; TEXT="\e[37m"; COLOR_NAME="Neon Magenta" ;;
+    "yellow")  PRIMARY="\e[33m"; ACCENT="\e[93m"; TEXT="\e[37m"; COLOR_NAME="Luxury Yellow" ;;
+    "red")     PRIMARY="\e[31m"; ACCENT="\e[91m"; TEXT="\e[37m"; COLOR_NAME="Flame Red" ;;
+    *)         PRIMARY="\e[36m"; ACCENT="\e[96m"; TEXT="\e[37m"; COLOR_NAME="Electric Cyan" ;; # Default Cyan
+esac
+
 GREEN="\e[32m"
 YELLOW="\e[33m"
-CYAN="\e[36m"
-RESET="\e[0m"
+RED="\e[31m"
+
+# 2. ATUR BENTUK DESAIN MENU
+case "$CURRENT_LAYOUT" in
+    "cyberpunk")
+        LAYOUT_NAME="Cyberpunk ASCII"
+        render_layout() {
+            echo -e "${GREEN}┌────────────────────────────────────────────────────────┐${RESET}"
+            echo -e "${GREEN}│ STATUS : $RESET$LICENSE_INFO ${GREEN}│${RESET}"
+            echo -e "${GREEN}└────────────────────────────────────────────────────────┘${RESET}"
+            echo ""
+            echo -e "${PRIMARY}      __  ___          ___       __  ___atrix           ${RESET}"
+            echo -e "${PRIMARY}     /  |/  /__  ___  / _ \___ _/  |/  /__ ___          ${RESET}"
+            echo -e "${PRIMARY}    / /|_/ / _ \/ _ \/ // / _ \`/ /|_/ / _ \\\` _ \\         ${RESET}"
+            echo -e "${PRIMARY}   /_/  /_/\___/\___/____/\_,_/_/  /_/\___/_//_/         ${RESET}"
+            echo ""
+            echo -e "  👤 ${YELLOW}Author${RESET} : Asep Rianto        📱 ${YELLOW}Device${RESET} : ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "${PRIMARY}──────────────────────────────────────────────────────────${RESET}"
+            echo -e "  ${ACCENT}[1]${RESET} ${TEXT}AudioMatrix Pro${RESET}      ${ACCENT}[6]${RESET} ${TEXT}PongMatrix Pro${RESET}"
+            echo -e "  ${ACCENT}[2]${RESET} ${TEXT}VideoMatrix Pro${RESET}      ${ACCENT}[7]${RESET} ${TEXT}Kelola License${RESET}"
+            echo -e "  ${ACCENT}[3]${RESET} ${TEXT}FetchMatrix Pro${RESET}      ${ACCENT}[8]${RESET} ${TEXT}Lihat Changelog${RESET}"
+            echo -e "  ${ACCENT}[4]${RESET} ${TEXT}LoopMatrix Pro${RESET}       ${ACCENT}[9]${RESET} ${TEXT}Cek Pembaruan${RESET}"
+            echo -e "  ${ACCENT}[5]${RESET} ${TEXT}StreamMatrix Pro${RESET}     ${ACCENT}[10]${RESET} ${TEXT}Custom Tema & Warna${RESET}"
+            echo -e "${PRIMARY}──────────────────────────────────────────────────────────${RESET}"
+            echo -e "  ${RED}[0] Keluar Aplikasi${RESET}"
+            echo -e "${PRIMARY}──────────────────────────────────────────────────────────${RESET}"
+        }
+        ;;
+    "box_close")
+        LAYOUT_NAME="Classic Closed Box"
+        render_layout() {
+            echo -e "${PRIMARY}╔════════════════════════════════════════════════════════╗${RESET}"
+            echo -e "${PRIMARY}║ 🟢 STATUS : $RESET$LICENSE_INFO ${PRIMARY}║${RESET}"
+            echo -e "${PRIMARY}╠════════════════════════════════════════════════════════╣${RESET}"
+            echo -e "${PRIMARY}║                MEDIAMATRIX SUITE PRO                   ║${RESET}"
+            echo -e "${PRIMARY}║             ${TEXT}Warna: $COLOR_NAME | Desain: $LAYOUT_NAME${PRIMARY}           ║${RESET}"
+            echo -e "${PRIMARY}╠════════════════════════════════════════════════════════╣${RESET}"
+            echo -e "${PRIMARY}║ 👤 Dev: Asep Rianto                                    ║${RESET}"
+            echo -e "${PRIMARY}║ 📱 Dev: ${DEVICE_DISPLAY:-Unknown}                      ║${RESET}"
+            echo -e "${PRIMARY}╠════════════════════════════════════════════════════════╣${RESET}"
+            echo -e "${PRIMARY}║  ${ACCENT}[1]${PRIMARY} AudioMatrix Pro      ${ACCENT}[6]${PRIMARY} PongMatrix Pro      ║${RESET}"
+            echo -e "${PRIMARY}║  ${ACCENT}[2]${PRIMARY} VideoMatrix Pro      ${ACCENT}[7]${PRIMARY} Kelola License      ║${RESET}"
+            echo -e "${PRIMARY}║  ${ACCENT}[3]${PRIMARY} FetchMatrix Pro      ${ACCENT}[8]${PRIMARY} Lihat Changelog     ║${RESET}"
+            echo -e "${PRIMARY}║  ${ACCENT}[4]${PRIMARY} LoopMatrix Pro       ${ACCENT}[9]${PRIMARY} Cek Pembaruan       ║${RESET}"
+            echo -e "${PRIMARY}║  ${ACCENT}[5]${PRIMARY} StreamMatrix Pro     ${ACCENT}[10]${PRIMARY} Custom Tema & Warna ║${RESET}"
+            echo -e "${PRIMARY}╠════════════════════════════════════════════════════════╣${RESET}"
+            echo -e "${PRIMARY}║  ${RED}[0] Keluar Aplikasi${PRIMARY}                                   ║${RESET}"
+            echo -e "${PRIMARY}╚════════════════════════════════════════════════════════╝${RESET}"
+        }
+        ;;
+    *) # Minimalist
+        LAYOUT_NAME="Minimalist Elegant"
+        render_layout() {
+            echo -e "${GREEN}● $LICENSE_INFO${RESET}"
+            echo -e "${PRIMARY}========================================================${RESET}"
+            echo -e "                 ${TEXT}MEDIAMATRIX SUITE PRO${RESET}              "
+            echo -e "      ${TEXT}Desain:${RESET} ${YELLOW}$LAYOUT_NAME${RESET} ${TEXT}| Warna:${RESET} ${YELLOW}$COLOR_NAME${RESET}"
+            echo -e "${PRIMARY}========================================================${RESET}"
+            echo -e " 👤 Developer : Asep Rianto"
+            echo -e " 📱 Perangkat  : ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "${PRIMARY}--------------------------------------------------------${RESET}"
+            echo -e "  ${ACCENT}[1]${RESET} AudioMatrix Pro      ${ACCENT}[6]${RESET} PongMatrix Pro"
+            echo -e "  ${ACCENT}[2]${RESET} VideoMatrix Pro      ${ACCENT}[7]${RESET} Kelola License"
+            echo -e "  ${ACCENT}[3]${RESET} FetchMatrix Pro      ${ACCENT}[8]${RESET} Lihat Changelog"
+            echo -e "  ${ACCENT}[4]${RESET} LoopMatrix Pro       ${ACCENT}[9]${RESET} Cek Pembaruan"
+            echo -e "  ${ACCENT}[5]${RESET} StreamMatrix Pro     ${ACCENT}[10]${RESET} Custom Tema & Warna"
+            echo -e "${PRIMARY}--------------------------------------------------------${RESET}"
+            echo -e "  ${RED}[0] Keluar Aplikasi${RESET}"
+            echo -e "${PRIMARY}========================================================${RESET}"
+        }
+        ;;
+esac
 
 # =========================
 # LICENSE SYSTEM (FINAL)
@@ -309,23 +398,7 @@ fi
 # =========================
 draw_menu() {
     clear
-    echo -e "${GREEN}● $LICENSE_INFO${RESET}"
-    echo -e "${CYAN}========================================================${RESET}"
-    echo -e "                 MEDIAMATRIX SUITE PRO              "
-    echo -e "             ${YELLOW}v${VERSION}${RESET} | Powered by Premium Engine"
-    echo -e "${CYAN}========================================================${RESET}"
-    echo -e " 👤 Developer : Asep Rianto"
-    echo -e " 📱 Perangkat  : ${DEVICE_DISPLAY:-Unknown}"
-    echo -e "${CYAN}--------------------------------------------------------${RESET}"
-    # Formasi Simetris: 5 Menu di Kiri & 4 Menu di Kanan (Pas Berpasangan)
-    echo -e "  ${CYAN}[1]${RESET} AudioMatrix Pro      ${CYAN}[6]${RESET} PongMatrix Pro"
-    echo -e "  ${CYAN}[2]${RESET} VideoMatrix Pro      ${CYAN}[7]${RESET} Kelola License"
-    echo -e "  ${CYAN}[3]${RESET} FetchMatrix Pro      ${CYAN}[8]${RESET} Lihat Changelog"
-    echo -e "  ${CYAN}[4]${RESET} LoopMatrix Pro       ${CYAN}[9]${RESET} Cek Pembaruan"
-    echo -e "  ${CYAN}[5]${RESET} StreamMatrix Pro"
-    echo -e "${CYAN}--------------------------------------------------------${RESET}"
-    echo -e "  ${RED}[0] Keluar Aplikasi${RESET}"
-    echo -e "${CYAN}========================================================${RESET}"
+    render_layout
 }
 
 # =========================
@@ -504,7 +577,6 @@ while true; do
                 echo "🔁 Jalankan ulang aplikasi untuk input license baru"
                 sleep 2
                 ;;
-            
             0)
                 break
                 ;;
@@ -524,6 +596,65 @@ while true; do
             check_update
             echo ""
             read -p "ENTER untuk kembali..."
+            ;;
+        10)
+            while true; do
+                clear
+                echo -e "${PRIMARY}=========================================${RESET}"
+                echo -e "       🎨 DASHBOARD KUSTOMISASI TEMA      "
+                echo -e "${PRIMARY}=========================================${RESET}"
+                echo -e " 🖼️  Desain Aktif : ${YELLOW}$LAYOUT_NAME${RESET}"
+                echo -e " 🎨 Warna Aktif  : ${PRIMARY}$COLOR_NAME${RESET}"
+                echo -e "${PRIMARY}-----------------------------------------${RESET}"
+                echo -e " 1) 🖼️  Ganti Bentuk / Desain Layout"
+                echo -e " 2) 🎨 Ganti Varian Warna Menu"
+                echo -e " 0) ⬅️ Kembali ke Menu Utama"
+                echo -e "${PRIMARY}=========================================${RESET}"
+                echo ""
+                read -p "Pilih tindakan [0-2]: " THEME_ACTION
+
+                case "$THEME_ACTION" in
+                    1)
+                        clear
+                        echo "🖼️ PILIH BENTUK DESAIN LAYOUT:"
+                        echo "1) Minimalist Elegant (Bawaan)"
+                        echo "2) Cyberpunk ASCII Logo"
+                        echo "3) Classic Closed Box"
+                        read -p "Pilih [1-3]: " CHOOSE_L
+                        case "$CHOOSE_L" in
+                            1) echo "minimalist" > "$LAYOUT_FILE" ;;
+                            2) echo "cyberpunk" > "$LAYOUT_FILE" ;;
+                            3) echo "box_close" > "$LAYOUT_FILE" ;;
+                        esac
+                        echo "✅ Bentuk layout berhasil disimpan! Silakan restart aplikasi."
+                        sleep 1.5
+                        ;;
+                    2)
+                        clear
+                        echo "🎨 PILIH VARIAN WARNA UTAMA:"
+                        echo -e "1) \e[36mElectric Cyan\e[0m"
+                        echo -e "2) \e[32mClassic Green\e[0m"
+                        echo -e "3) \e[35mNeon Magenta\e[0m"
+                        echo -e "4) \e[33mLuxury Yellow\e[0m"
+                        echo -e "5) \e[31mFlame Red\e[0m"
+                        read -p "Pilih [1-5]: " CHOOSE_C
+                        case "$CHOOSE_C" in
+                            1) echo "cyan" > "$COLOR_FILE" ;;
+                            2) echo "green" > "$COLOR_FILE" ;;
+                            3) echo "magenta" > "$COLOR_FILE" ;;
+                            4) echo "yellow" > "$COLOR_FILE" ;;
+                            5) echo "red" > "$COLOR_FILE" ;;
+                        esac
+                        echo "✅ Warna baru berhasil disimpan! Silakan restart aplikasi."
+                        sleep 1.5
+                        ;;
+                    0)
+                        break
+                        ;;
+                esac
+            done
+            # Memaksa script memuat ulang perubahan tanpa harus keluar aplikasi sepenuhnya
+            exec bash "$0"
             ;;
         0)
             echo -e "${RED}Keluar...${RESET}"
