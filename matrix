@@ -94,6 +94,45 @@ case "$CURRENT_LAYOUT" in
             echo -e "${PRIMARY}╚════════════════════════════════════════════════════════╝${RESET}"
         }
         ;;
+    "retro_thick")
+        LAYOUT_NAME="Retro Thick Border"
+        render_layout() {
+            echo -e "${PRIMARY}▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▜${RESET}"
+            echo -e "${PRIMARY}▌${GREEN} ● $RESET$LICENSE_INFO ${PRIMARY}▐${RESET}"
+            echo -e "${PRIMARY}▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟${RESET}"
+            echo ""
+            echo -e " 🖥️  ${TEXT}MEDIAMATRIX SUITE PRO${RESET} (v${VERSION})"
+            echo -e " 👤 ${TEXT}Dev:${RESET} Asep Rianto    📱 ${TEXT}Dev:${RESET} ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "${PRIMARY}■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■${RESET}"
+            echo -e "  ${ACCENT}❲1❳${RESET} AudioMatrix Pro      ${ACCENT}❲6❳${RESET} PongMatrix Pro"
+            echo -e "  ${ACCENT}❲2❳${RESET} VideoMatrix Pro      ${ACCENT}❲7❳${RESET} Kelola License"
+            echo -e "  ${ACCENT}❲3❳${RESET} FetchMatrix Pro      ${ACCENT}❲8❳${RESET} Lihat Changelog"
+            echo -e "  ${ACCENT}❲4❳${RESET} LoopMatrix Pro       ${ACCENT}❲9❳${RESET} Cek Pembaruan"
+            echo -e "  ${ACCENT}❲5❳${RESET} StreamMatrix Pro     ${ACCENT}❲10❳${RESET} Custom Tema & Warna"
+            echo -e "${PRIMARY}■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■${RESET}"
+            echo -e "  ${RED}❲0❳ Keluar Aplikasi${RESET}"
+            echo -e "${PRIMARY}▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀${RESET}"
+        }
+        ;;
+    "ultra_clean")
+        LAYOUT_NAME="Ultra Clean Light"
+        render_layout() {
+            echo -e "  ${GREEN}✓${RESET} $LICENSE_INFO"
+            echo ""
+            echo -e "  ${TEXT}M E D I A M A T R I X   S U I T E   P R O${RESET}"
+            echo -e "  ${TEXT}─────────────────────────────────────────${RESET}"
+            echo -e "  ${TEXT}User:${RESET} Asep Rianto  ${TEXT}|  Device:${RESET} ${DEVICE_DISPLAY:-Unknown}"
+            echo ""
+            echo -e "  ${ACCENT}01.${RESET} AudioMatrix Pro       ${ACCENT}06.${RESET} PongMatrix Pro"
+            echo -e "  ${ACCENT}02.${RESET} VideoMatrix Pro       ${ACCENT}07.${RESET} Kelola License"
+            echo -e "  ${ACCENT}03.${RESET} FetchMatrix Pro       ${ACCENT}08.${RESET} Lihat Changelog"
+            echo -e "  ${ACCENT}04.${RESET} LoopMatrix Pro        ${ACCENT}09.${RESET} Cek Pembaruan"
+            echo -e "  ${ACCENT}05.${RESET} StreamMatrix Pro      ${ACCENT}10.${RESET} Custom Tema & Warna"
+            echo ""
+            echo -e "  ${RED}00. Keluar Aplikasi${RESET}"
+            echo ""
+        }
+        ;;
     *) # Minimalist
         LAYOUT_NAME="Minimalist Elegant"
         render_layout() {
@@ -617,18 +656,21 @@ while true; do
                     1)
                         clear
                         echo "🖼️ PILIH BENTUK DESAIN LAYOUT:"
-                        echo "1) Minimalist Elegant"
+                        echo "1) Minimalist Elegant (Bawaan)"
                         echo "2) Cyberpunk ASCII Logo"
                         echo "3) Classic Closed Box"
-                        read -p "Pilih [1-3]: " CHOOSE_L
+                        echo "4) Retro Thick Border (Baru ✨)"
+                        echo "5) Ultra Clean Light (Baru ✨)"
+                        read -p "Pilih [1-5]: " CHOOSE_L
                         case "$CHOOSE_L" in
                             1) echo "minimalist" > "$LAYOUT_FILE" ;;
                             2) echo "cyberpunk" > "$LAYOUT_FILE" ;;
                             3) echo "box_close" > "$LAYOUT_FILE" ;;
+                            4) echo "retro_thick" > "$LAYOUT_FILE" ;;
+                            5) echo "ultra_clean" > "$LAYOUT_FILE" ;;
                         esac
                         echo "✅ Bentuk layout berhasil disimpan! Memuat ulang..."
                         sleep 1
-                        # Memuat ulang file biner secara langsung tanpa perintah 'bash'
                         exec "$0"
                         ;;
                     2)
