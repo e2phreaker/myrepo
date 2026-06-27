@@ -1,0 +1,273 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+WORKDIR="$HOME/MediaMatrix"
+ENC_REPO="aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2UycGhyZWFrZXIvbXlyZXBvL21haW4="
+REPO=$(printf '%s' "$ENC_REPO" | base64 -d 2>/dev/null)
+
+[ -z "$REPO" ] && {
+    echo "Repo decode gagal"
+    exit 1
+}
+LICENSE_FILE="$HOME/.mediamatrix_license"
+
+validate_license() {
+    LICENSE_URL="$REPO/licenses.json"
+
+    [ ! -f "$LICENSE_FILE" ] && echo "❌ License tidak ditemukan" && exit 1
+
+    USER_KEY=$(cat "$LICENSE_FILE")
+    [ -z "$USER_KEY" ] && echo "❌ License kosong" && exit 1
+
+    DATA=$(curl -s "$LICENSE_URL")
+    [ -z "$DATA" ] && echo "❌ Tidak bisa konek ke server" && exit 1
+
+    KEY_DATA=$(echo "$DATA" | grep -A5 "\"$USER_KEY\"")
+    [ -z "$KEY_DATA" ] && echo "❌ License tidak valid" && exit 1
+}
+
+# 🔴 WAJIB DI SINI (SEBELUM APAPUN)
+validate_license
+
+# ==========================
+# BARU SCRIPT UTAMA
+# ==========================
+
+echo "Ping-Pong module jalan..."
+
+WORKDIR="/sdcard/MediaMatrix"
+mkdir -p "$WORKDIR"
+
+clear
+echo "======================================"
+echo " 📺 StreamMatrix Pro (CBR & Reconnect)"
+echo "======================================"
+echo "📁 Workdir: $WORKDIR"
+echo ""
+
+# =========================
+# 1. PILIH FILE INPUT
+# =========================
+mapfile -t FILE_LIST < <(find "$WORKDIR" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.mov" \))
+
+if [ ${#FILE_LIST[@]} -eq 0 ]; then
+  echo "❌ Tidak ada file video di $WORKDIR!"
+  echo ""
+  read -p "Tekan ENTER untuk keluar..."
+  exit 1
+fi
+
+echo "📂 Pilih file video untuk di-stream:"
+for i in "${!FILE_LIST[@]}"; do
+  echo "$((i+1))) $(basename "${FILE_LIST[$i]}")"
+done
+echo "0) ❌ Keluar"
+echo ""
+
+while true; do
+  read -p "Pilih nomor: " num
+  if [ "$num" = "0" ]; then exit 0; fi
+  if ! [[ "$num" =~ ^[0-9]+$ ]] || [ "$num" -lt 1 ] || [ "$num" -gt "${#FILE_LIST[@]}" ]; then
+    echo "❌ Nomor tidak valid, coba lagi."
+    continue
+  fi
+  break
+done
+
+INPUT="${FILE_LIST[$((num-1))]}"
+echo "✅ Dipilih: $(basename "$INPUT")"
+echo ""
+
+# =========================
+# 2. PILIH MODE STREAMING
+# =========================
+echo "🎛️ Pilih Mode Streaming:"
+echo "--------------------------------------------------------"
+echo "1) 🔥 Live Encode CBR (Praktis tapi Berat)"
+echo "   Kelebihan  : Video apa saja bisa langsung live, resolusi & bitrate otomatis disesuaikan."
+echo "   Kekurangan : Sangat menguras CPU, HP cepat panas, dan berisiko lag/frame drop jika HP kurang kuat."
+echo ""
+echo "2) ⚡ Direct Stream / Pre-encoded (Sangat Ringan & Stabil)"
+echo "   Kelebihan  : HP tetap dingin, performa maksimal, sangat lancar untuk live berjam-jam/24 jam."
+echo "   Kekurangan : File video harus sudah Anda Encode menjadi CBR (menggunakan menu Bitrate Control)"
+echo "                terlebih dahulu sebelum melakukan stream ini."
+echo "--------------------------------------------------------"
+
+while true; do
+  read -p "Pilih Mode [1-2]: " STREAM_MODE
+  if [[ ! "$STREAM_MODE" =~ ^[1-2]$ ]]; then
+    echo "❌ Mode tidak valid. Pilih 1 atau 2."
+    continue
+  fi
+  break
+done
+echo ""
+
+# =========================
+# 3. SETTING RESOLUSI (HANYA UNTUK MODE 1)
+# =========================
+if [ "$STREAM_MODE" = "1" ]; then
+    echo "⚙️ Pilih Kualitas Stream (CBR Ketat):"
+    echo "1) 720p  (CBR: 2500k)  - Standar & Cukup Ringan"
+    echo "2) 1080p (CBR: 6500k)  - Kualitas HD"
+    echo "3) 4K    (CBR: 12000k) - Sangat Berat (Butuh HP Flagship)"
+    echo ""
+
+    while true; do
+      read -p "Pilih resolusi [1-3]: " RES_MODE
+      case $RES_MODE in
+        1) SCALE="1280:720"; BITRATE="2500k"; BUFSIZE="5000k"; break ;;
+        2) SCALE="1920:1080"; BITRATE="6500k"; BUFSIZE="13000k"; break ;;
+        3) SCALE="3840:2160"; BITRATE="12000k"; BUFSIZE="24000k"; break ;;
+        *) echo "❌ Pilihan tidak valid." ;;
+      esac
+    done
+    echo "✅ Kualitas diset ke: Mode $RES_MODE ($BITRATE)"
+    echo ""
+else
+    echo "✅ Mode Direct Stream dipilih. Resolusi dan Bitrate akan mengikuti file asli."
+    echo ""
+fi
+
+# =========================
+# 4. INPUT DURASI
+# =========================
+while true; do
+  echo "⏱️ Format Durasi Stream:"
+  echo "   - 0           : Tanpa Batas (24/7)"
+  echo "   - Detik       : 45s"
+  echo "   - Menit       : 1m"
+  echo "   - Menit&Detik : 5m30s"
+  echo "   - Jam         : 1h"
+  echo "   - Jam,Men,Det : 1h15m30s"
+  echo ""
+  read -p "Masukkan durasi target: " RAW_DURATION
+
+  RAW_DURATION=$(echo "$RAW_DURATION" | tr -d '[:space:]')
+
+  if [ "$RAW_DURATION" = "0" ]; then
+      TARGET_DURATION=0
+      echo "✅ Durasi ditetapkan: Tanpa Batas (Infinite Loop)"
+      break
+  fi
+
+  if [[ ! "$RAW_DURATION" =~ ^([0-9]+h)?([0-9]+m)?([0-9]+s)?$ ]] || [ -z "$RAW_DURATION" ]; then
+      echo "❌ Format durasi salah! (contoh: 1h30m atau 0)."
+      sleep 1.5
+      echo ""
+      continue
+  fi
+
+  h=0; m=0; s=0
+  if [[ $RAW_DURATION =~ ([0-9]+)h ]]; then h="${BASH_REMATCH[1]}"; fi
+  if [[ $RAW_DURATION =~ ([0-9]+)m ]]; then m="${BASH_REMATCH[1]}"; fi
+  if [[ $RAW_DURATION =~ ([0-9]+)s ]]; then s="${BASH_REMATCH[1]}"; fi
+
+  TARGET_DURATION=$((h * 3600 + m * 60 + s))
+
+  if [ "$TARGET_DURATION" -eq 0 ]; then
+      echo "❌ Format tidak terbaca. Coba lagi."
+      continue
+  fi
+
+  echo "✅ Durasi ditetapkan: $TARGET_DURATION detik"
+  break
+done
+echo ""
+
+# =========================
+# 5. KREDENSIAL STREAM
+# =========================
+echo "🌐 Masukkan Data Stream (YouTube / Twitch / dsb)"
+read -p "Stream URL (cth: rtmp://a.rtmp.youtube.com/live2) : " STREAM_URL
+read -p "Stream Key (cth: xxxx-xxxx-xxxx-xxxx)          : " STREAM_KEY
+
+if [ -z "$STREAM_URL" ] || [ -z "$STREAM_KEY" ]; then
+    echo "❌ URL atau Key tidak boleh kosong!"
+    exit 1
+fi
+
+FULL_URL="$STREAM_URL/$STREAM_KEY"
+
+echo ""
+echo "🚀 Memulai Live Stream..."
+echo "--------------------------------------------------------"
+
+# =========================
+# 6. ENGINE STREAM & RECONNECT
+# =========================
+START_TIME=$(date +%s)
+
+while true; do
+    NOW=$(date +%s)
+    ELAPSED=$((NOW - START_TIME))
+
+    # Logika Waktu
+    if [ "$TARGET_DURATION" -gt 0 ]; then
+        REMAINING=$((TARGET_DURATION - ELAPSED))
+        
+        if [ "$REMAINING" -le 0 ]; then
+            echo -e "\n✅ Durasi target tercapai. Stream dihentikan."
+            break
+        fi
+        echo "📡 Sisa waktu tayang: $REMAINING detik"
+    else
+        echo "📡 Mode: 24/7 Unlimited"
+    fi
+
+    # Eksekusi FFmpeg berdasarkan Mode Streaming & Durasi Target
+    if [ "$STREAM_MODE" = "1" ]; then
+        # MODE 1: LIVE ENCODE CBR
+        if [ "$TARGET_DURATION" -gt 0 ]; then
+            ffmpeg -re -t "$REMAINING" -stream_loop -1 -i "$INPUT" \
+            -c:v libx264 -preset veryfast \
+            -b:v "$BITRATE" -maxrate "$BITRATE" -minrate "$BITRATE" -bufsize "$BUFSIZE" -nal-hrd cbr \
+            -vf "scale=$SCALE" \
+            -c:a aac -b:a 128k -ar 44100 \
+            -f flv -flvflags no_duration_filesize \
+            "$FULL_URL"
+        else
+            ffmpeg -re -stream_loop -1 -i "$INPUT" \
+            -c:v libx264 -preset veryfast \
+            -b:v "$BITRATE" -maxrate "$BITRATE" -minrate "$BITRATE" -bufsize "$BUFSIZE" -nal-hrd cbr \
+            -vf "scale=$SCALE" \
+            -c:a aac -b:a 128k -ar 44100 \
+            -f flv -flvflags no_duration_filesize \
+            "$FULL_URL"
+        fi
+    else
+        # MODE 2: DIRECT STREAM (COPY)
+        if [ "$TARGET_DURATION" -gt 0 ]; then
+            ffmpeg -re -t "$REMAINING" -stream_loop -1 -i "$INPUT" \
+            -c copy \
+            -f flv -flvflags no_duration_filesize \
+            "$FULL_URL"
+        else
+            ffmpeg -re -stream_loop -1 -i "$INPUT" \
+            -c copy \
+            -f flv -flvflags no_duration_filesize \
+            "$FULL_URL"
+        fi
+    fi
+
+    # Tangkap exit code dari FFmpeg
+    FF_EXIT=$?
+
+    # Jika FFmpeg berhenti karena durasi sudah selesai atau ditekan CTRL+C (kode 255)
+    if [ "$TARGET_DURATION" -gt 0 ] && [ $(( $(date +%s) - START_TIME )) -ge "$TARGET_DURATION" ]; then
+        echo -e "\n✅ Selesai."
+        break
+    fi
+
+    if [ $FF_EXIT -eq 255 ]; then
+        echo -e "\n⏹️ Stream dibatalkan oleh pengguna."
+        break
+    fi
+
+    # Auto Reconnect jika koneksi RTO
+    echo "⚠️ Koneksi terputus! Mencoba auto-reconnect dalam 5 detik..."
+    sleep 5
+done
+
+echo "--------------------------------------------------------"
+echo ""
+read -p "Tekan ENTER untuk kembali ke menu..."
