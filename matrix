@@ -11,6 +11,7 @@ LOCAL_HASH_FILE="$WORKDIR/.hash"
 
 VERSION_URL="$REPO/version.txt"
 CHANGELOG_URL="$REPO/changelog.txt"
+CHANGELOG_LATEST_URL="$REPO/changelog_latest.txt"
 
 # =========================
 # LOAD VERSION
@@ -219,8 +220,8 @@ check_update() {
         echo -e "${YELLOW}⚠️ Update tersedia!${RESET}"
 
         echo ""
-        echo "========== CHANGELOG =========="
-        curl -fsSL "$CHANGELOG_URL"
+        echo "========== UPDATE TERBARU =========="
+        curl -fsSL "$CHANGELOG_LATEST_URL"
         echo "==============================="
         echo ""
 
