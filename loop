@@ -32,7 +32,7 @@ validate_license
 # BARU SCRIPT UTAMA
 # ==========================
 
-echo "Audio module jalan..."
+echo "Loop module jalan..."
 
 WORKDIR="/sdcard/MediaMatrix"
 
