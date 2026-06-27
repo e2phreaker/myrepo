@@ -598,6 +598,7 @@ while true; do
             read -p "ENTER untuk kembali..."
             ;;
         10)
+        10)
             while true; do
                 clear
                 echo -e "${PRIMARY}=========================================${RESET}"
@@ -626,8 +627,10 @@ while true; do
                             2) echo "cyberpunk" > "$LAYOUT_FILE" ;;
                             3) echo "box_close" > "$LAYOUT_FILE" ;;
                         esac
-                        echo "✅ Bentuk layout berhasil disimpan! Silakan restart aplikasi."
-                        sleep 1.5
+                        echo "✅ Bentuk layout berhasil disimpan! Memuat ulang..."
+                        sleep 1
+                        # Memuat ulang file biner secara langsung tanpa perintah 'bash'
+                        exec "$0"
                         ;;
                     2)
                         clear
@@ -645,16 +648,17 @@ while true; do
                             4) echo "yellow" > "$COLOR_FILE" ;;
                             5) echo "red" > "$COLOR_FILE" ;;
                         esac
-                        echo "✅ Warna baru berhasil disimpan! Silakan restart aplikasi."
-                        sleep 1.5
+                        echo "✅ Warna baru berhasil disimpan! Memuat ulang..."
+                        sleep 1
+                        # Memuat ulang file biner secara langsung tanpa perintah 'bash'
+                        exec "$0"
                         ;;
                     0)
+                        # Keluar dari sub-menu dan kembali ke draw_menu utama
                         break
                         ;;
                 esac
             done
-            # Memaksa script memuat ulang perubahan tanpa harus keluar aplikasi sepenuhnya
-            exec bash "$0"
             ;;
         0)
             echo -e "${RED}Keluar...${RESET}"
