@@ -308,7 +308,6 @@ fi
 # MENU
 # =========================
 draw_menu() {
-draw_menu() {
     clear
     echo -e "${GREEN}● $LICENSE_INFO${RESET}"
     echo -e "${CYAN}========================================================${RESET}"
