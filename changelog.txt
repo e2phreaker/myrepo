@@ -55,21 +55,3 @@ Released: 2026-06-27
 
 =========================================
 
-Version 1.3.0
-Released: 2026-06-27
-
-[SECURITY]
-
-- Fixed a critical security vulnerability (Device-Lock Bypass) where users could access the main menu using someone else's registered license.
-- Implemented strict device validation that actively cross-checks the current phone model with the data registered on the server.
-- Added an automatic protection system that wipes the local license file and terminates the session if a mismatched license is detected.
-
-[FIXED]
-
-- Resolved the infinite loop glitch that triggered repeatedly when a valid license key was inserted but the device was not yet registered on the server.
-
-[IMPROVED]
-
-- Optimized the background validation code to make license checks lighter and faster during startup.
-
-=========================================
