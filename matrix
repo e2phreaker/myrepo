@@ -258,17 +258,24 @@ check_update() {
 
         if [[ $confirm =~ ^[Yy]$ ]]; then
 
-            echo "⬇️ Mengupdate..."
+            echo "⬇️ Mengupdate & Mengenkripsi..."
 
             cd "$WORKDIR" || exit
 
-            curl -fLo matrix "$REPO/matrix"
+            # Download versi terbaru sebagai file mentah sementara
+            curl -fLo .matrix_raw "$REPO/matrix"
+
+            # Enkripsi ulang menggunakan SHC di HP user
+            shc -f .matrix_raw -o matrix
+            
+            # Bersihkan file sampah
+            rm -f .matrix_raw .matrix_raw.x.c
 
             chmod +x matrix
 
             echo "$latest" > "$VERSION_FILE"
 
-            echo -e "${GREEN}✅ Update selesai${RESET}"
+            echo -e "${GREEN}✅ Update & Enkripsi selesai${RESET}"
             echo "🔁 Jalankan ulang: matrix"
             exit 0
         fi
