@@ -309,24 +309,29 @@ fi
 # =========================
 draw_menu() {
     clear
-    echo -e "${GREEN}$LICENSE_INFO${RESET}"
-    echo -e "${CYAN}╔══════════════════════════════╗${RESET}"
-    echo -e "${CYAN}║   🎛️ MediaMatrix Suite        ${RESET}"
-    echo -e "${CYAN}║${RESET} 👤 Author Asep Rianto  ${CYAN}${RESET}"
-echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ${RESET}"
-    echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}1) 🎵 AudioMatrix Pro${RESET}      ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}2) 🎬 VideoMatrix Pro${RESET}      ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}3) 📥 FetchMatrix Pro${RESET}     ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}5) 📺 StreamMatrix Pro${RESET}    ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🏓 PongMatrix Pro${RESET}    ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}7) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}8) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}9) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
-    echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
-    echo -e "${CYAN}║${RESET} ${RED}0) ❌ Keluar${RESET}                ${CYAN}${RESET}"
-    echo -e "${CYAN}╚══════════════════════════════╝${RESET}"
+    # Informasi Status Lisensi di bagian paling atas dengan border tipis
+    echo -e "${CYAN}┌──────────────────────────────────────────────┐${RESET}"
+    echo -e "${CYAN}│ STATUS : $RESET$LICENSE_INFO ${CYAN}│${RESET}"
+    echo -e "${CYAN}└──────────────────────────────────────────────┘${RESET}"
+    echo ""
+    # Header Utama
+    echo -e "${CYAN}    __  ___          ___       __  ___atrix ${RESET}"
+    echo -e "${CYAN}   /  |/  /__  ___  / _ \___ _/  |/  /__ ___  ${RESET}"
+    echo -e "${CYAN}  / /|_/ / _ \/ _ \/ // / _ \`/ /|_/ / _ \\\` _ \ ${RESET}"
+    echo -e "${CYAN} /_/  /_/\___/\___/____/\_,_/_/  /_/\___/_//_/ ${RESET}"
+    echo ""
+    echo -e " 👤 ${YELLOW}Author${RESET} : Asep Rianto       📱 ${YELLOW}Device${RESET} : ${DEVICE_DISPLAY:-Unknown}"
+    echo -e "${CYAN}────────────────────────────────────────────────${RESET}"
+    # Pilihan Menu
+    echo -e "  ${CYAN}[1]${RESET} 🎵 AudioMatrix Pro    ${CYAN}[4]${RESET} 🔁 LoopMatrix Pro"
+    echo -e "  ${CYAN}[2]${RESET} 🎬 VideoMatrix Pro    ${CYAN}[5]${RESET} 📺 StreamMatrix Pro"
+    echo -e "  ${CYAN}[3]${RESET} 📥 FetchMatrix Pro    ${CYAN}[6]${RESET} 🏓 PongMatrix Pro"
+    echo ""
+    echo -e "  ${CYAN}[7]${RESET} 🔑 Kelola License     ${CYAN}[8]${RESET} 📜 Lihat Changelog"
+    echo -e "  ${CYAN}[9]${RESET} 🔍 Cek Update"
+    echo -e "${CYAN}────────────────────────────────────────────────${RESET}"
+    echo -e "  ${RED}[0] ❌ Keluar dari Aplikasi${RESET}"
+    echo -e "${CYAN}────────────────────────────────────────────────${RESET}"
 }
 
 # =========================
