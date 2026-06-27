@@ -41,7 +41,7 @@ Released: 2026-06-27
 
 [NEW]
 - Added StreamMatrix Pro for live streaming (RTMP/RTMPS) with Live Encode CBR and Smart Auto-Reconnect features.
-- Added Ping-Pong Loop ULTIMATE with 5 dynamic looping modes (Classic, DJ Stutter, Boomerang, Heartbeat, and Slow-Mo).
+- Added PongMatrix Pro with 5 dynamic looping modes (Classic, DJ Stutter, Boomerang, Heartbeat, and Slow-Mo).
 - Added real-time clean progress indicators (time-only) for Ping-Pong Loop processing.
 - Added platform support info for streaming (YouTube, Twitch, Facebook, TikTok, Kick, Restream, etc).
 
