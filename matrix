@@ -133,6 +133,54 @@ case "$CURRENT_LAYOUT" in
             echo ""
         }
         ;;
+    "modern_future":
+        LAYOUT_NAME="Modern Future HUD"
+        render_layout() {
+            echo -e "  ${PRIMARY}◢◤${RESET} ${TEXT}MEDIAMATRIX SUITE PRO${RESET} ${PRIMARY}◢◤${RESET}"
+            echo -e "  ${PRIMARY}📡 STATUS :$RESET $LICENSE_INFO"
+            echo -e "  ${PRIMARY}👥 USER   :$RESET Asep Rianto   ${PRIMARY}📱 COMP :$RESET ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "  ${PRIMARY}📶────────────────────────────────────────────────────🎰${RESET}"
+            echo -e "  ${PRIMARY}│${RESET} ${ACCENT}◌ 1 ◌${RESET} AudioMatrix Pro      ${PRIMARY}│${RESET} ${ACCENT}◌ 6 ◌${RESET} PongMatrix Pro"
+            echo -e "  ${PRIMARY}│${RESET} ${ACCENT}◌ 2 ◌${RESET} VideoMatrix Pro      ${PRIMARY}│${RESET} ${ACCENT}◌ 7 ◌${RESET} Kelola License"
+            echo -e "  ${PRIMARY}│${RESET} ${ACCENT}◌ 3 ◌${RESET} FetchMatrix Pro      ${PRIMARY}│${RESET} ${ACCENT}◌ 8 ◌${RESET} Lihat Changelog"
+            echo -e "  ${PRIMARY}│${RESET} ${ACCENT}◌ 4 ◌${RESET} LoopMatrix Pro       ${PRIMARY}│${RESET} ${ACCENT}◌ 9 ◌${RESET} Cek Pembaruan"
+            echo -e "  ${PRIMARY}│${RESET} ${ACCENT}◌ 5 ◌${RESET} StreamMatrix Pro     ${PRIMARY}│${RESET} ${ACCENT}◌ 10 ◌${RESET} Custom Tema & Warna"
+            echo -e "  ${PRIMARY}📶────────────────────────────────────────────────────🎰${RESET}"
+            echo -e "  ${RED}❌ [0] Keluar Aplikasi${RESET}"
+        }
+        ;;
+    "classic_roman":
+        LAYOUT_NAME="Classic Roman Pillar"
+        render_layout() {
+            echo -e "${PRIMARY}🏛️  ====================================================== 🏛️${RESET}"
+            echo -e "  📜 STATUS : $LICENSE_INFO"
+            echo -e "  👑 OWNER  : Asep Rianto  |  🔮 DEVICE : ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "${PRIMARY}🏛️  ------------------------------------------------------ 🏛️${RESET}"
+            echo -e "  ${ACCENT}Ⅰ.${RESET} AudioMatrix Pro        ${ACCENT}Ⅵ.${RESET} PongMatrix Pro"
+            echo -e "  ${ACCENT}Ⅱ.${RESET} VideoMatrix Pro        ${ACCENT}Ⅶ.${RESET} Kelola License"
+            echo -e "  ${ACCENT}Ⅲ.${RESET} FetchMatrix Pro        ${ACCENT}Ⅷ.${RESET} Lihat Changelog"
+            echo -e "  ${ACCENT}Ⅳ.${RESET} LoopMatrix Pro         ${ACCENT}Ⅸ.${RESET} Cek Pembaruan"
+            echo -e "  ${ACCENT}Ⅴ.${RESET} StreamMatrix Pro       ${ACCENT}Ⅹ.${RESET} Custom Tema & Warna"
+            echo -e "${PRIMARY}🏛️  ====================================================== 🏛️${RESET}"
+            echo -e "  ${RED}Ⓞ. Keluar Aplikasi${RESET}"
+        }
+        ;;
+    "hacker_monitor":
+        LAYOUT_NAME="Hacker Monitor Info"
+        render_layout() {
+            echo -e "${PRIMARY}[ MONITOR SYSTEM V.${VERSION} ]${RESET}----------------------------------"
+            echo -e " STATUS  >> $LICENSE_INFO"
+            echo -e " KONTROL >> Dev: Asep Rianto // Host: ${DEVICE_DISPLAY:-Unknown}"
+            echo -e "${PRIMARY}--------------------------------------------------------${RESET}"
+            echo -e " ${ACCENT}├─▶ [1]${RESET} AudioMatrix Pro      ${ACCENT}├─▶ [6]${RESET} PongMatrix Pro"
+            echo -e " ${ACCENT}├─▶ [2]${RESET} VideoMatrix Pro      ${ACCENT}├─▶ [7]${RESET} Kelola License"
+            echo -e " ${ACCENT}├─▶ [3]${RESET} FetchMatrix Pro      ${ACCENT}├─▶ [8]${RESET} Lihat Changelog"
+            echo -e " ${ACCENT}├─▶ [4]${RESET} LoopMatrix Pro       ${ACCENT}├─▶ [9]${RESET} Cek Pembaruan"
+            echo -e " ${ACCENT}└─▶ [5]${RESET} StreamMatrix Pro     ${ACCENT}└─▶ [10]${RESET} Custom Tema"
+            echo -e "${PRIMARY}--------------------------------------------------------${RESET}"
+            echo -e " ${RED}✖  [0] DISCONNECT SYSTEM${RESET}"
+        }
+        ;;
     *) # Minimalist
         LAYOUT_NAME="Minimalist Elegant"
         render_layout() {
@@ -659,15 +707,21 @@ while true; do
                         echo "1) Minimalist Elegant (Bawaan)"
                         echo "2) Cyberpunk ASCII Logo"
                         echo "3) Classic Closed Box"
-                        echo "4) Retro Thick Border (Baru ✨)"
-                        echo "5) Ultra Clean Light (Baru ✨)"
-                        read -p "Pilih [1-5]: " CHOOSE_L
+                        echo "4) Retro Thick Border"
+                        echo "5) Ultra Clean Light"
+                        echo "6) Modern Future HUD (Baru ✨)"
+                        echo "7) Classic Roman Pillar (Baru ✨)"
+                        echo "8) Hacker Monitor Info (Baru ✨)"
+                        read -p "Pilih [1-8]: " CHOOSE_L
                         case "$CHOOSE_L" in
                             1) echo "minimalist" > "$LAYOUT_FILE" ;;
                             2) echo "cyberpunk" > "$LAYOUT_FILE" ;;
                             3) echo "box_close" > "$LAYOUT_FILE" ;;
                             4) echo "retro_thick" > "$LAYOUT_FILE" ;;
                             5) echo "ultra_clean" > "$LAYOUT_FILE" ;;
+                            6) echo "modern_future" > "$LAYOUT_FILE" ;;
+                            7) echo "classic_roman" > "$LAYOUT_FILE" ;;
+                            8) echo "hacker_monitor" > "$LAYOUT_FILE" ;;
                         esac
                         echo "✅ Bentuk layout berhasil disimpan! Memuat ulang..."
                         sleep 1
