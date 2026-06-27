@@ -1,17 +1,22 @@
 {
-  "ABC123": {
+  "PRO-001": {
     "expiry": "2026-06-30",
     "status": "active",
-    "device": "RMX2170"
+    "device": ""
+  },
+  "TANGGAL": {
+    "expiry": "2026-06-30",
+    "status": "active",
+    "device": ""
   },
 
-  "1BULAN": {
+  "BULAN": {
     "expiry": "31d",
     "status": "active",
     "device": "RMX2170"
   },
 
-  "VIP999": {
+  "LIFETIME": {
     "expiry": "lifetime",
     "status": "active",
     "device": "M2007J20CG"
