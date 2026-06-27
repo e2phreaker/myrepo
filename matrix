@@ -618,7 +618,7 @@ while true; do
                     1)
                         clear
                         echo "🖼️ PILIH BENTUK DESAIN LAYOUT:"
-                        echo "1) Minimalist Elegant (Bawaan)"
+                        echo "1) Minimalist Elegant"
                         echo "2) Cyberpunk ASCII Logo"
                         echo "3) Classic Closed Box"
                         read -p "Pilih [1-3]: " CHOOSE_L
