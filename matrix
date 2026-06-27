@@ -345,81 +345,99 @@ while true; do
     case $menu in
         1)
             clear
-            TMP_FILE="$WORKDIR/.audio"
-            echo "⬇️ Downloading AudioMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.audio_raw"
+            TMP_BIN="$WORKDIR/.audio"
+            echo "⬇️ Downloading & Encrypting AudioMatrix..."
+            curl -fsSL "$REPO/audio" -o "$TMP_RAW" || {
                 echo "❌ Gagal download AudioMatrix."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         2)
             clear
-            TMP_FILE="$WORKDIR/.video"
-            echo "⬇️ Downloading VideoMatrix..."
-            curl -fsSL "$REPO/video" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.video_raw"
+            TMP_BIN="$WORKDIR/.video"
+            echo "⬇️ Downloading & Encrypting VideoMatrix..."
+            curl -fsSL "$REPO/video" -o "$TMP_RAW" || {
                 echo "❌ Gagal download VideoMatrix."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         3)
             clear
-            TMP_FILE="$WORKDIR/.yt"
-            echo "⬇️ Downloading FetchMatrix..."
-            curl -fsSL "$REPO/yt" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.yt_raw"
+            TMP_BIN="$WORKDIR/.yt"
+            echo "⬇️ Downloading & Encrypting FetchMatrix..."
+            curl -fsSL "$REPO/yt" -o "$TMP_RAW" || {
                 echo "❌ Gagal download FetchMatrix."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         4)
             clear
-            TMP_FILE="$WORKDIR/.loop"
-            echo "⬇️ Downloading LoopMatrix..."
-            curl -fsSL "$REPO/loop" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.loop_raw"
+            TMP_BIN="$WORKDIR/.loop"
+            echo "⬇️ Downloading & Encrypting LoopMatrix..."
+            curl -fsSL "$REPO/loop" -o "$TMP_RAW" || {
                 echo "❌ Gagal download LoopMatrix."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         5)
             clear
-            TMP_FILE="$WORKDIR/.live"
-            echo "⬇️ Downloading StreamMatrix..."
-            curl -fsSL "$REPO/live" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.live_raw"
+            TMP_BIN="$WORKDIR/.live"
+            echo "⬇️ Downloading & Encrypting StreamMatrix..."
+            curl -fsSL "$REPO/live" -o "$TMP_RAW" || {
                 echo "❌ Gagal download StreamMatrix."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         6)
             clear
-            TMP_FILE="$WORKDIR/.pong"
-            echo "⬇️ Downloading PongMatrix Pro..."
-            curl -fsSL "$REPO/pong" -o "$TMP_FILE" || {
+            TMP_RAW="$WORKDIR/.pong_raw"
+            TMP_BIN="$WORKDIR/.pong"
+            echo "⬇️ Downloading & Encrypting PongMatrix Pro..."
+            curl -fsSL "$REPO/pong" -o "$TMP_RAW" || {
                 echo "❌ Gagal download Ping-Pong Pro."
                 read -p "ENTER..."
                 break
             }
-            chmod +x "$TMP_FILE"
-            "$TMP_FILE"
-            rm -f "$TMP_FILE"
+            shc -f "$TMP_RAW" -o "$TMP_BIN"
+            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
+            chmod +x "$TMP_BIN"
+            "$TMP_BIN"
+            rm -f "$TMP_BIN"
             ;;
         7)
             while true; do
