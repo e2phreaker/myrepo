@@ -284,7 +284,7 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}3) 📥 FetchMatrix Pro${RESET}     ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}5) 📺 StreamMatrix Pro${RESET}    ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🏓 Ping-Pong Pro${RESET}    ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🏓 PongMatrix Pro${RESET}    ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}7) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}8) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}9) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
@@ -375,7 +375,7 @@ while true; do
         6)
             clear
             TMP_FILE="$WORKDIR/.pong"
-            echo "⬇️ Downloading Ping-Pong Pro..."
+            echo "⬇️ Downloading PongMatrix Pro..."
             curl -fsSL "$REPO/pong" -o "$TMP_FILE" || {
                 echo "❌ Gagal download Ping-Pong Pro."
                 read -p "ENTER..."
