@@ -170,22 +170,29 @@ if [[ "$EXPIRY" != "lifetime" && "$NOW_SEC" -gt "$EXP_SEC" ]]; then
     return 1
 fi
 
-    [ "$STATUS" != "active" ] && echo "🚫 License revoked" && return 1
+    # ==========================================
+    # MEMBUAT KODE UNIK HP (FINGERPRINT)
+    # ==========================================
+    MODEL=$(getprop ro.product.model 2>/dev/null | tr -d '[:space:]')
+    BRAND=$(getprop ro.product.brand 2>/dev/null | tr -d '[:space:]')
+    NET_ID=$(getprop net.hostname 2>/dev/null | cut -d'-' -f2)
+    
+    if [ -z "$NET_ID" ]; then
+        NET_ID=$(ls -l /data/data/com.termux/files/home | awk '{print $3}' | md5sum | cut -c1-8)
+    fi
+
+    RAW_ID="${BRAND}-${MODEL}-${NET_ID}"
+    DEVICE_ID=$(echo -n "$RAW_ID" | md5sum | cut -c1-8 | tr '[:lower:]' '[:upper:]')
+    DEVICE_DISPLAY="${BRAND} ${MODEL} (${DEVICE_ID})"
+    # ==========================================
 
     SERVER_DEVICE=$(echo "$KEY_DATA" | grep '"device"' | head -n1 | cut -d '"' -f4)
 
-    # 1. Ambil nama/ID HP kamu saat ini
-    DEVICE_ID=$(getprop ro.product.model 2>/dev/null)
-    [ -z "$DEVICE_ID" ] && DEVICE_ID="unknown-device"
-
-    # 2. Ambil data HP yang terdaftar di server
-    SERVER_DEVICE=$(echo "$KEY_DATA" | grep '"device"' | head -n1 | cut -d '"' -f4)
-
-    # KONDISI A: Jika di server ternyata BELUM ada HP yang terdaftar
+    # KONDISI A: Jika di server ternyata BELUM ada HP yang terdaftar (device masih "")
     if [ -z "$SERVER_DEVICE" ]; then
         echo "🔗 Device belum terdaftar"
         echo ""
-        echo "📱 Device kamu: $DEVICE_ID"
+        echo "📱 Device kamu: $DEVICE_DISPLAY"
         echo "🔑 License: $USER_KEY"
         echo ""
         echo "\"$USER_KEY\": {"
@@ -196,10 +203,10 @@ fi
         echo ""
         echo "👉 Hubungi Pengembang untuk mendaftarkan device ini."
         rm -f "$LICENSE_FILE"
-        exit 1  # Langsung keluar aplikasi, tidak bikin pusing/looping
+        exit 1
     fi
 
-    # KONDISI B: Jika di server SUDAH ADA HP lain, kita cocokkan dengan HP kamu sekarang
+    # KONDISI B: Jika di server SUDAH ADA, cocokkan Kode Uniknya
     if [ "$SERVER_DEVICE" != "$DEVICE_ID" ]; then
         clear
         echo "===================================="
@@ -207,12 +214,12 @@ fi
         echo "===================================="
         echo ""
         echo "❌ Lisensi ini sudah dipakai di HP lain!"
-        echo "📱 HP Terdaftar : $SERVER_DEVICE"
-        echo "📲 HP Kamu Sekarang: $DEVICE_ID"
+        echo "📱 ID Terdaftar : $SERVER_DEVICE"
+        echo "📲 ID HP Kamu   : $DEVICE_ID ($DEVICE_DISPLAY)"
         echo ""
         echo "👉 Silakan gunakan lisensi lain atau hubungi pengembang."
-        rm -f "$LICENSE_FILE" # Hapus lisensi salah ini dari HP agar bisa input baru
-        exit 1  # Tendang keluar dari aplikasi
+        rm -f "$LICENSE_FILE"
+        exit 1
     fi
 
     if [[ "$EXPIRY" == "lifetime" ]]; then
