@@ -39,7 +39,7 @@ while true; do
 
     clear
     echo "======================================"
-    echo " 🏓 Ping-Pong Loop ULTIMATE"
+    echo " 🏓 Ping-Pong Loop"
     echo "======================================"
     echo "📁 Workdir: $WORKDIR"
     echo ""
