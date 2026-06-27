@@ -174,10 +174,15 @@ fi
 
     SERVER_DEVICE=$(echo "$KEY_DATA" | grep '"device"' | head -n1 | cut -d '"' -f4)
 
-    if [ -z "$SERVER_DEVICE" ]; then
-        DEVICE_ID=$(getprop ro.product.model 2>/dev/null)
-        [ -z "$DEVICE_ID" ] && DEVICE_ID="unknown-device"
+    # 1. Ambil nama/ID HP kamu saat ini
+    DEVICE_ID=$(getprop ro.product.model 2>/dev/null)
+    [ -z "$DEVICE_ID" ] && DEVICE_ID="unknown-device"
 
+    # 2. Ambil data HP yang terdaftar di server
+    SERVER_DEVICE=$(echo "$KEY_DATA" | grep '"device"' | head -n1 | cut -d '"' -f4)
+
+    # KONDISI A: Jika di server ternyata BELUM ada HP yang terdaftar
+    if [ -z "$SERVER_DEVICE" ]; then
         echo "🔗 Device belum terdaftar"
         echo ""
         echo "📱 Device kamu: $DEVICE_ID"
@@ -189,8 +194,25 @@ fi
         echo "  \"device\": \"$DEVICE_ID\""
         echo "}"
         echo ""
-        echo "👉 Hubungi Pengembang:"
-        return 1
+        echo "👉 Hubungi Pengembang untuk mendaftarkan device ini."
+        rm -f "$LICENSE_FILE"
+        exit 1  # Langsung keluar aplikasi, tidak bikin pusing/looping
+    fi
+
+    # KONDISI B: Jika di server SUDAH ADA HP lain, kita cocokkan dengan HP kamu sekarang
+    if [ "$SERVER_DEVICE" != "$DEVICE_ID" ]; then
+        clear
+        echo "===================================="
+        echo "      AKSES DITOLAK (DEVICE SALAH)  "
+        echo "===================================="
+        echo ""
+        echo "❌ Lisensi ini sudah dipakai di HP lain!"
+        echo "📱 HP Terdaftar : $SERVER_DEVICE"
+        echo "📲 HP Kamu Sekarang: $DEVICE_ID"
+        echo ""
+        echo "👉 Silakan gunakan lisensi lain atau hubungi pengembang."
+        rm -f "$LICENSE_FILE" # Hapus lisensi salah ini dari HP agar bisa input baru
+        exit 1  # Tendang keluar dari aplikasi
     fi
 
     if [[ "$EXPIRY" == "lifetime" ]]; then
