@@ -13,19 +13,13 @@
   "BULAN": {
     "expiry": "31d",
     "status": "active",
-    "device": "RMX2170"
+    "device": ""
   },
 
   "LIFETIME": {
     "expiry": "lifetime",
     "status": "active",
-    "device": "M2007J20CG"
-  },
-
-  "TRIAL1D": {
-    "expiry": "2026-05-03",
-    "status": "active",
-    "device": "M2007J20CG"
+    "device": ""
   },
 
   "VIP-AC": {
