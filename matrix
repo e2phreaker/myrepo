@@ -280,12 +280,13 @@ echo -e "${CYAN}║${RESET} ⚙️ Powered by FFmpeg ${CYAN}  ${RESET}"
     echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}1) 🎵 AudioMatrix Pro${RESET}      ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}2) 🎬 VideoMatrix Pro${RESET}      ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}3) 📺 StreamMatrix Pro${RESET}     ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}3) 📥 FetchMatrix Pro${RESET}     ${CYAN}${RESET}"
     echo -e "${CYAN}║${RESET} ${YELLOW}4) 🔁 LoopMatrix Pro${RESET}       ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}5) 🏓 Ping-Pong Pro${RESET}    ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}7) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
-    echo -e "${CYAN}║${RESET} ${YELLOW}8) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}5) 📺 StreamMatrix Pro${RESET}    ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}6) 🏓 Ping-Pong Pro${RESET}    ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}7) 🔑 Kelola License${RESET}     ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}8) 📜 Lihat Changelog${RESET}           ${CYAN}${RESET}"
+    echo -e "${CYAN}║${RESET} ${YELLOW}9) 🔍 Cek Update${RESET}           ${CYAN}${RESET}"
     echo -e "${CYAN}╠══════════════════════════════╣${RESET}"
     echo -e "${CYAN}║${RESET} ${RED}0) ❌ Keluar${RESET}                ${CYAN}${RESET}"
     echo -e "${CYAN}╚══════════════════════════════╝${RESET}"
@@ -334,9 +335,9 @@ while true; do
         3)
             clear
             TMP_FILE="$WORKDIR/.yt"
-            echo "⬇️ Downloading StreamMatrix..."
+            echo "⬇️ Downloading FetchMatrix..."
             curl -fsSL "$REPO/yt" -o "$TMP_FILE" || {
-                echo "❌ Gagal download StreamMatrix."
+                echo "❌ Gagal download FetchMatrix."
                 read -p "ENTER..."
                 break
             }
@@ -359,6 +360,19 @@ while true; do
             ;;
         5)
             clear
+            TMP_FILE="$WORKDIR/.live"
+            echo "⬇️ Downloading StreamMatrix..."
+            curl -fsSL "$REPO/live" -o "$TMP_FILE" || {
+                echo "❌ Gagal download StreamMatrix."
+                read -p "ENTER..."
+                break
+            }
+            chmod +x "$TMP_FILE"
+            "$TMP_FILE"
+            rm -f "$TMP_FILE"
+            ;;
+        6)
+            clear
             TMP_FILE="$WORKDIR/.pong"
             echo "⬇️ Downloading Ping-Pong Pro..."
             curl -fsSL "$REPO/pong" -o "$TMP_FILE" || {
@@ -370,7 +384,7 @@ while true; do
             "$TMP_FILE"
             rm -f "$TMP_FILE"
             ;;
-        6)
+        7)
     while true; do
         clear
         echo "🔐 Kelola License"
@@ -437,11 +451,11 @@ while true; do
         esac
     done
     ;;
-        7)
+        8)
             view_changelog
             read -p "ENTER untuk kembali..."
             ;;
-        8)
+        9)
             check_update
             echo ""
             read -p "ENTER untuk kembali..."
