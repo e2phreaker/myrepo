@@ -308,23 +308,25 @@ fi
 # MENU
 # =========================
 draw_menu() {
+draw_menu() {
     clear
     echo -e "${GREEN}● $LICENSE_INFO${RESET}"
-    echo -e "${CYAN}================================================${RESET}"
-    echo -e "             MEDIAMATRIX SUITE PRO              "
-    echo -e "         ${YELLOW}v${VERSION}${RESET} | Powered by Premium Engine"
-    echo -e "${CYAN}================================================${RESET}"
+    echo -e "${CYAN}========================================================${RESET}"
+    echo -e "                 MEDIAMATRIX SUITE PRO              "
+    echo -e "             ${YELLOW}v${VERSION}${RESET} | Powered by Premium Engine"
+    echo -e "${CYAN}========================================================${RESET}"
     echo -e " 👤 Developer : Asep Rianto"
     echo -e " 📱 Perangkat  : ${DEVICE_DISPLAY:-Unknown}"
-    echo -e "${CYAN}------------------------------------------------${RESET}"
-    echo -e " ${YELLOW}01.${RESET} AudioMatrix Pro      ${YELLOW}05.${RESET} StreamMatrix Pro"
-    echo -e " ${YELLOW}02.${RESET} VideoMatrix Pro      ${YELLOW}06.${RESET} PongMatrix Pro"
-    echo -e " ${YELLOW}03.${RESET} FetchMatrix Pro      ${YELLOW}07.${RESET} Kelola License"
-    echo -e " ${YELLOW}04.${RESET} LoopMatrix Pro       ${YELLOW}08.${RESET} Lihat Changelog"
-    echo -e "                         ${YELLOW}09.${RESET} Cek Pembaruan"
-    echo -e "${CYAN}------------------------------------------------${RESET}"
-    echo -e " ${RED}00. Keluar Aplikasi${RESET}"
-    echo -e "${CYAN}================================================${RESET}"
+    echo -e "${CYAN}--------------------------------------------------------${RESET}"
+    # Formasi Simetris: 5 Menu di Kiri & 4 Menu di Kanan (Pas Berpasangan)
+    echo -e "  ${CYAN}[1]${RESET} AudioMatrix Pro      ${CYAN}[6]${RESET} PongMatrix Pro"
+    echo -e "  ${CYAN}[2]${RESET} VideoMatrix Pro      ${CYAN}[7]${RESET} Kelola License"
+    echo -e "  ${CYAN}[3]${RESET} FetchMatrix Pro      ${CYAN}[8]${RESET} Lihat Changelog"
+    echo -e "  ${CYAN}[4]${RESET} LoopMatrix Pro       ${CYAN}[9]${RESET} Cek Pembaruan"
+    echo -e "  ${CYAN}[5]${RESET} StreamMatrix Pro"
+    echo -e "${CYAN}--------------------------------------------------------${RESET}"
+    echo -e "  ${RED}[0] Keluar Aplikasi${RESET}"
+    echo -e "${CYAN}========================================================${RESET}"
 }
 
 # =========================
