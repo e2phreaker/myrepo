@@ -177,9 +177,15 @@ echo ""
 # =========================
 # 5. KREDENSIAL STREAM
 # =========================
-echo "🌐 Masukkan Data Stream (YouTube / Twitch / dsb)"
+echo "🌐 Masukkan Data Stream"
+echo "--------------------------------------------------------"
+echo "ℹ️  SUPPORTED PLATFORMS (RTMP/RTMPS):"
+echo "   ✅ YouTube Live     ✅ Twitch           ✅ Facebook Live"
+echo "   ✅ Kick             ✅ Restream.io      ✅ Custom Server"
+echo "   ✅ TikTok / IG / X (Syarat: Memiliki akses Stream Key)"
+echo "--------------------------------------------------------"
 read -p "Stream URL (cth: rtmp://a.rtmp.youtube.com/live2) : " STREAM_URL
-read -p "Stream Key (cth: xxxx-xxxx-xxxx-xxxx)          : " STREAM_KEY
+read -p "Stream Key (cth: xxxx-xxxx-xxxx-xxxx)             : " STREAM_KEY
 
 if [ -z "$STREAM_URL" ] || [ -z "$STREAM_KEY" ]; then
     echo "❌ URL atau Key tidak boleh kosong!"
