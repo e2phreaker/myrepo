@@ -34,12 +34,52 @@ CURRENT_COLOR="cyan"
 RESET="\e[0m"
 
 # 1. ATUR PALET WARNA (Bisa dikombinasikan ke semua bentuk)
+
+# =========================
+# SYSTEM CONFIG VARIAN WARNA (SINGLE & MIX)
+# =========================
+COLOR_FILE="$WORKDIR/.theme_color"
+CURRENT_COLOR="cyan"
+[ -f "$COLOR_FILE" ] && CURRENT_COLOR=$(cat "$COLOR_FILE")
+
+RESET="\e[0m"
+
+# Kode Warna Dasar ANSI
+C_CYAN="\e[36m";    C_L_CYAN="\e[96m"
+C_GREEN="\e[32m";   C_L_GREEN="\e[92m"
+C_MAGENTA="\e[35m"; C_L_MAGENTA="\e[95m"
+C_YELLOW="\e[33m";  C_L_YELLOW="\e[93m"
+C_RED="\e[31m";     C_L_RED="\e[91m"
+C_BLUE="\e[34m";    C_L_BLUE="\e[94m"
+C_WHITE="\e[37m";   C_L_WHITE="\e[97m"
+
 case "$CURRENT_COLOR" in
-    "green")   PRIMARY="\e[32m"; ACCENT="\e[92m"; TEXT="\e[37m"; COLOR_NAME="Classic Green" ;;
-    "magenta") PRIMARY="\e[35m"; ACCENT="\e[95m"; TEXT="\e[37m"; COLOR_NAME="Neon Magenta" ;;
-    "yellow")  PRIMARY="\e[33m"; ACCENT="\e[93m"; TEXT="\e[37m"; COLOR_NAME="Luxury Yellow" ;;
-    "red")     PRIMARY="\e[31m"; ACCENT="\e[91m"; TEXT="\e[37m"; COLOR_NAME="Flame Red" ;;
-    *)         PRIMARY="\e[36m"; ACCENT="\e[96m"; TEXT="\e[37m"; COLOR_NAME="Electric Cyan" ;; # Default Cyan
+    # ─── VARIAN 1 WARNA (SINGLE) ───
+    "green")
+        PRIMARY="$C_GREEN"; ACCENT="$C_L_GREEN"; TEXT="$C_WHITE"; COLOR_NAME="Classic Green" ;;
+    "magenta")
+        PRIMARY="$C_MAGENTA"; ACCENT="$C_L_MAGENTA"; TEXT="$C_WHITE"; COLOR_NAME="Neon Magenta" ;;
+    "yellow")
+        PRIMARY="$C_YELLOW"; ACCENT="$C_L_YELLOW"; TEXT="$C_WHITE"; COLOR_NAME="Luxury Yellow" ;;
+    "red")
+        PRIMARY="$C_RED"; ACCENT="$C_L_RED"; TEXT="$C_WHITE"; COLOR_NAME="Flame Red" ;;
+    "blue")
+        PRIMARY="$C_BLUE"; ACCENT="$C_L_BLUE"; TEXT="$C_WHITE"; COLOR_NAME="Deep Blue" ;;
+        
+    # ─── VARIAN CAMPURAN (MIX/GRADIENT) ───
+    "mix_cyber")
+        PRIMARY="$C_CYAN"; ACCENT="$C_L_MAGENTA"; TEXT="$C_L_WHITE"; COLOR_NAME="Mix: Cyberpunk (Cyan x Magenta)" ;;
+    "mix_toxic")
+        PRIMARY="$C_GREEN"; ACCENT="$C_L_YELLOW"; TEXT="$C_L_GREEN"; COLOR_NAME="Mix: Toxic (Green x Yellow)" ;;
+    "mix_lava")
+        PRIMARY="$C_RED"; ACCENT="$C_L_YELLOW"; TEXT="$C_L_WHITE"; COLOR_NAME="Mix: Lava (Red x Yellow)" ;;
+    "mix_royal")
+        PRIMARY="$C_BLUE"; ACCENT="$C_L_MAGENTA"; TEXT="$C_L_CYAN"; COLOR_NAME="Mix: Royal (Blue x Magenta)" ;;
+    "mix_ice")
+        PRIMARY="$C_BLUE"; ACCENT="$C_L_CYAN"; TEXT="$C_L_WHITE"; COLOR_NAME="Mix: Ice Frost (Blue x Cyan)" ;;
+        
+    *) # Default Single Cyan
+        PRIMARY="$C_CYAN"; ACCENT="$C_L_CYAN"; TEXT="$C_WHITE"; COLOR_NAME="Electric Cyan" ;;
 esac
 
 GREEN="\e[32m"
@@ -730,22 +770,36 @@ while true; do
                     2)
                         clear
                         echo "🎨 PILIH VARIAN WARNA UTAMA:"
+                        echo "--- PILIHAN 1 WARNA (SINGLE) ---"
                         echo -e "1) \e[36mElectric Cyan\e[0m"
                         echo -e "2) \e[32mClassic Green\e[0m"
                         echo -e "3) \e[35mNeon Magenta\e[0m"
                         echo -e "4) \e[33mLuxury Yellow\e[0m"
                         echo -e "5) \e[31mFlame Red\e[0m"
-                        read -p "Pilih [1-5]: " CHOOSE_C
+                        echo -e "6) \e[34mDeep Blue\e[0m"
+                        echo "--- PILIHAN KOMBINASI (MIX COLOR) ---"
+                        echo -e "7) \e[36mCyberpunk\e[0m (\e[36mCyan\e[0m x \e[35mMagenta\e[0m) 🔥"
+                        echo -e "8) \e[32mToxic\e[0m (\e[32mGreen\e[0m x \e[33mYellow\e[0m)"
+                        echo -e "9) \e[31mLava\e[0m (\e[31mRed\e[0m x \e[33mYellow\e[0m)"
+                        echo -e "10) \e[34mRoyal\e[0m (\e[34mBlue\e[0m x \e[35mMagenta\e[0m)"
+                        echo -e "11) \e[34mIce Frost\e[0m (\e[34mBlue\e[0m x \e[36mCyan\e[0m)"
+                        echo ""
+                        read -p "Pilih [1-11]: " CHOOSE_C
                         case "$CHOOSE_C" in
                             1) echo "cyan" > "$COLOR_FILE" ;;
                             2) echo "green" > "$COLOR_FILE" ;;
                             3) echo "magenta" > "$COLOR_FILE" ;;
                             4) echo "yellow" > "$COLOR_FILE" ;;
                             5) echo "red" > "$COLOR_FILE" ;;
+                            6) echo "blue" > "$COLOR_FILE" ;;
+                            7) echo "mix_cyber" > "$COLOR_FILE" ;;
+                            8) echo "mix_toxic" > "$COLOR_FILE" ;;
+                            9) echo "mix_lava" > "$COLOR_FILE" ;;
+                            10) echo "mix_royal" > "$COLOR_FILE" ;;
+                            11) echo "mix_ice" > "$COLOR_FILE" ;;
                         esac
                         echo "✅ Warna baru berhasil disimpan! Memuat ulang..."
                         sleep 1
-                        # Memuat ulang file biner secara langsung tanpa perintah 'bash'
                         exec "$0"
                         ;;
                     0)
