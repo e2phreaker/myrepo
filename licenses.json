@@ -4,6 +4,13 @@
     "status": "active",
     "device": "0C154F8F"
   },
+
+  "PRO-002": {
+    "expiry": "2026-06-30",
+    "status": "active",
+    "device": ""
+  },
+  
   "TANGGAL": {
     "expiry": "2026-06-30",
     "status": "active",
