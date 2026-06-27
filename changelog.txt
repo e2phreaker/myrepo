@@ -3,7 +3,7 @@ MediaMatrix Changelog
 =========================================
 
 Version 1.0.0
-2026-06-25
+Released: 2026-06-25
 
 [NEW]
 - Initial release
@@ -33,5 +33,24 @@ Released: 2026-06-26
 [CHANGED]
 - Manual Mode now provides concise descriptions before input.
 - Instructions are easier to understand without changing the workflow.
+
+=========================================
+
+Version 1.2.0
+Released: 2026-06-27
+
+[NEW]
+- Added StreamMatrix Pro for live streaming (RTMP/RTMPS) with Live Encode CBR and Smart Auto-Reconnect features.
+- Added Ping-Pong Loop ULTIMATE with 5 dynamic looping modes (Classic, DJ Stutter, Boomerang, Heartbeat, and Slow-Mo).
+- Added real-time clean progress indicators (time-only) for Ping-Pong Loop processing.
+- Added platform support info for streaming (YouTube, Twitch, Facebook, TikTok, Kick, Restream, etc).
+
+[IMPROVED]
+- Updated matrix launcher menu interface to integrate the new ultimate modules.
+- Enhanced time parsing system to support flexible formats (e.g., 45s, 5m30s, 1h15m30s).
+- Implemented a "Press ENTER to return" loop to prevent the script from exiting immediately after a task finishes.
+
+[CHANGED]
+- Renamed the video downloader module to "FetchMatrix Pro" to clarify its function and separate it from the new StreamMatrix Pro.
 
 =========================================
