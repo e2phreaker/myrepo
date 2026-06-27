@@ -428,7 +428,6 @@ while true; do
                 echo "⏳ Expiry      : ${EXPIRY:-Tidak diketahui/Belum cek}"
                 echo "🟢 Status      : ${STATUS:-Tidak aktif}"
                 echo "📱 Device ID   : ${DEVICE_ID:-Belum terdaftar}"
-                echo "📂 File Path   : $LICENSE_FILE"
                 echo "========================================="
                 echo "⚙️ PILIHAN MANAJEMEN:"
                 echo "1) Ganti License (Input Key Baru)"
