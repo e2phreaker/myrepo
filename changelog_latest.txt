@@ -2,7 +2,7 @@
 MediaMatrix Changelog
 =========================================
 
-Version 1.3.0
+Version 1.2.0
 Released: 2026-06-28
 
 [NEW]
