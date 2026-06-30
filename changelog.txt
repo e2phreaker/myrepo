@@ -68,7 +68,7 @@ Released: 2026-06-28
 
 [IMPROVED]
 
-- Restructured sub-modules 1 through 6 to automatically download raw code, compile seamlessly using SHC, and execute securely within the user's device.
+- Restructured sub-modules 1 through 6 to automatically download raw code, compile seamlessly, and execute securely within the user's device.
 - Re-aligned the main menu layout to a symmetrical 5-left and 4-right column split to improve readability on mobile screens.
 - Replaced the old "01." menu numbering format with the more modern and stylized "[1]" bracket system.
 - Personalised the launcher menu header by pulling and displaying the device model info dynamically.
