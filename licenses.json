@@ -1,12 +1,12 @@
 {
   "PRO-001": {
-    "expiry": "31d",
+    "expiry": "2026-12-31",
     "status": "active",
     "device": "0C154F8F"
   },
 
   "PRO-002": {
-    "expiry": "31d",
+    "expiry": "2026-12-31",
     "status": "active",
     "device": "5866CBA5"
   },
