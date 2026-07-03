@@ -697,8 +697,14 @@ output="$outdir/merged_${timestamp}.$ext"
 echo ""
 echo "🚀 Menggabungkan audio..."
 
-# ===== NO FADE (SMART MODE) =====
+# ===== NO FADE (SMART MODE / RE-ENCODE) =====
 if [ "$tmode" = "1" ]; then
+
+    echo ""
+    echo "⚙️ Metode Penggabungan (Merge Engine):"
+    echo "1. Direct Copy  (Sangat cepat, file disalin langsung, mungkin muncul warning stempel waktu)"
+    echo "2. Full Re-encode (Lebih lambat, render ulang dari nol setiap file, 100% aman tanpa warning)"
+    read -p "Pilih metode: " m_engine
 
     tempdir="$outdir/temp"
     mkdir -p "$tempdir"
@@ -706,33 +712,44 @@ if [ "$tmode" = "1" ]; then
 
     i=0
 
-    # ===== RE-ENCODE SEMUA FILE (AMAN) =====
+    # ===== PROSES FILE =====
     for f in "${selected[@]}"; do
-    infile="$f"
-    outfile="$tempdir/file_$i.$ext"
+        infile="$f"
+        outfile="$tempdir/file_$i.$ext"
 
-    # ambil sample rate & channel
-    sr=$(ffprobe -v error -select_streams a:0 \
-    -show_entries stream=sample_rate \
-    -of default=noprint_wrappers=1:nokey=1 "$infile")
+        if [ "$m_engine" = "1" ]; then
+            # --- MODE 1: DIRECT COPY ---
+            # Cek samplerate & channel seperti sistem lama
+            sr=$(ffprobe -v error -select_streams a:0 \
+            -show_entries stream=sample_rate \
+            -of default=noprint_wrappers=1:nokey=1 "$infile")
 
-    ch=$(ffprobe -v error -select_streams a:0 \
-    -show_entries stream=channels \
-    -of default=noprint_wrappers=1:nokey=1 "$infile")
+            ch=$(ffprobe -v error -select_streams a:0 \
+            -show_entries stream=channels \
+            -of default=noprint_wrappers=1:nokey=1 "$infile")
 
-    if [[ "$sr" == "44100" && "$ch" == "2" ]]; then
-        echo "⚡ Copy: $(basename "$infile")"
-        cp "$infile" "$outfile"
-    else
-        echo "🔧 Re-encode: $(basename "$infile")"
-        run_ffmpeg -i "$infile" \
-        -acodec $codec $bitrate_opt \
-        -ar 44100 -ac 2 \
-        "$outfile"
-    fi
+            if [[ "$sr" == "44100" && "$ch" == "2" ]]; then
+                echo "⚡ Copy: $(basename "$infile")"
+                cp "$infile" "$outfile"
+            else
+                echo "🔧 Normalize: $(basename "$infile")"
+                run_ffmpeg -i "$infile" \
+                -acodec $codec $bitrate_opt \
+                -ar 44100 -ac 2 \
+                "$outfile"
+            fi
+        else
+            # --- MODE 2: FULL RE-ENCODE ---
+            # Abaikan pengecekan, paksa render ulang dari nol agar kerangka MP3 sempurna
+            echo "🔧 Re-encode: $(basename "$infile")"
+            run_ffmpeg -i "$infile" \
+            -acodec $codec $bitrate_opt \
+            -ar 44100 -ac 2 \
+            "$outfile"
+        fi
 
-    i=$((i+1))
-done
+        i=$((i+1))
+    done
 
     # ===== VALIDASI FILE HASIL =====
     if [ "$i" -eq 0 ]; then
@@ -740,7 +757,7 @@ done
         exit 1
     fi
 
-    # ===== BUAT LIST CONCAT (FIX TANPA GLOB) =====
+    # ===== BUAT LIST CONCAT =====
     newlist="$tempdir/list.txt"
     > "$newlist"
 
@@ -748,7 +765,6 @@ done
         echo "file '$tempdir/file_$j.$ext'" >> "$newlist"
     done
 
-    # ===== VALIDASI LIST =====
     if [ ! -s "$newlist" ]; then
         echo "❌ List kosong"
         exit 1
@@ -758,12 +774,18 @@ done
     echo "🔗 Menggabungkan audio..."
 
     # ===== CONCAT FINAL =====
-    run_ffmpeg -f concat -safe 0 -fflags +genpts -i "$newlist" \
--c copy -reset_timestamps 1 -avoid_negative_ts make_zero "$output"
+    if [ "$m_engine" = "1" ]; then
+        # Mode Direct Copy (butuh flag pengaman khusus)
+        run_ffmpeg -f concat -safe 0 -fflags +genpts -i "$newlist" \
+        -c copy -reset_timestamps 1 -avoid_negative_ts make_zero "$output"
+    else
+        # Mode Re-encode (stempel waktu sudah sempurna dari awal, langsung gabung mulus)
+        run_ffmpeg -f concat -safe 0 -i "$newlist" -c copy "$output"
+    fi
 
-if [ -f "$output" ]; then
-    rm -rf "$tempdir"
-fi
+    if [ -f "$output" ]; then
+        rm -rf "$tempdir"
+    fi
 
 fi
 
