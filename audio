@@ -702,7 +702,7 @@ if [ "$tmode" = "1" ]; then
 
     echo ""
     echo "⚙️ Metode Penggabungan (Merge Engine):"
-    echo "1. Direct Copy    (Sangat cepat. Cocok jika semua lagu berasal dari sumber/album yang persis sama)"
+    echo "1. Direct Copy    (Sangat cepat. pengaturan bitrate tidak berlaku karena mengikuti file bawaan)"
     echo "2. Full Re-encode (Lebih lambat. Lagu diseragamkan ulang dari nol. 100% aman diputar di perangkat apa pun)"
     read -p "Pilih metode: " m_engine
 
