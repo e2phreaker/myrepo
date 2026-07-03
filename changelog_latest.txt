@@ -5,12 +5,6 @@ MediaMatrix Changelog
 Version 1.4.0
 Released: 2026-07-03
 
-[NEW]
-
-- Added PongMatrix Pro as a brand new dedicated module (Menu 6) for advanced time-manipulation and boomerang looping effects.
-- Introduced 5 unique reverse playback modes: Classic Boomerang, Overlapping Wave, Rhythm Bounce, Seamless Natural (with Crossfade), and Custom Manual.
-- Implemented a smart duration parsing system in ReverseMatrix to support flexible user time inputs (e.g., "45s", "1m 30s", "01:00:00").
-
 [IMPROVED]
 
 - Enhanced the AudioMatrix Pro (Merge Audio) module by adding a dual-engine processing choice in No Fade mode: "Direct Copy" for speed and "Full Re-encode" for perfect timestamp safety.
