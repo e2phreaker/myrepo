@@ -2,26 +2,23 @@
 MediaMatrix Changelog
 =========================================
 
-Version 1.3.0
-Released: 2026-06-28
+Version 1.4.0
+Released: 2026-07-03
 
 [NEW]
 
-- Added Custom Theme & Color Dashboard as a dedicated Module 10 for flexible interface customization.
-- Added support for multiple UI layouts, including Cyberpunk ASCII Logo, Classic Closed Box, and Minimalist Elegant.
-- Added 5 selectable color palettes (Electric Cyan, Classic Green, Neon Magenta, Luxury Yellow, and Flame Red).
-- Implemented an automatic configuration system to save layout and color preferences externally (.theme_layout and .theme_color).
-- Integrated an auto-reload feature (exec bash) to apply the chosen layout and colors instantly without fully exiting the application.
+- Added PongMatrix Pro as a brand new dedicated module (Menu 6) for advanced time-manipulation and boomerang looping effects.
+- Introduced 5 unique reverse playback modes: Classic Boomerang, Overlapping Wave, Rhythm Bounce, Seamless Natural (with Crossfade), and Custom Manual.
+- Implemented a smart duration parsing system in ReverseMatrix to support flexible user time inputs (e.g., "45s", "1m 30s", "01:00:00").
 
 [IMPROVED]
 
-- Restructured sub-modules 1 through 6 to automatically download raw code, compile seamlessly, and execute securely within the user's device.
-- Re-aligned the main menu layout to a symmetrical 5-left and 4-right column split to improve readability on mobile screens.
-- Replaced the old "01." menu numbering format with the more modern and stylized "[1]" bracket system.
-- Personalised the launcher menu header by pulling and displaying the device model info dynamically.
+- Enhanced the AudioMatrix Pro (Merge Audio) module by adding a dual-engine processing choice in No Fade mode: "Direct Copy" for speed and "Full Re-encode" for perfect timestamp safety.
+- Resolved the "non monotonically increasing dts" warning when merging MP3 files by forcing pristine DTS/PTS generation in Re-encode mode.
 
 [CHANGED]
 
-- Moved the theme customization utility out of the License Management menu to its own dedicated main menu slot (Menu 10).
+- Adjusted the core FFmpeg logging behavior in the Audio module from 'error' to 'fatal' to ensure a clean, distraction-free terminal output during rendering.
+- Updated the main dashboard layout to accommodate PongMatrix Pro at menu slot 6, shifting the License, Changelog, and Update menus down respectively.
 
 =========================================
