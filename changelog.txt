@@ -78,3 +78,18 @@ Released: 2026-06-28
 - Moved the theme customization utility out of the License Management menu to its own dedicated main menu slot (Menu 10).
 
 =========================================
+
+Version 1.4.0
+Released: 2026-07-03
+
+[IMPROVED]
+
+- Enhanced the AudioMatrix Pro (Merge Audio) module by adding a dual-engine processing choice in No Fade mode: "Direct Copy" for speed and "Full Re-encode" for perfect timestamp safety.
+- Resolved the "non monotonically increasing dts" warning when merging MP3 files by forcing pristine DTS/PTS generation in Re-encode mode.
+
+[CHANGED]
+
+- Adjusted the core FFmpeg logging behavior in the Audio module from 'error' to 'fatal' to ensure a clean, distraction-free terminal output during rendering.
+- Updated the main dashboard layout to accommodate PongMatrix Pro at menu slot 6, shifting the License, Changelog, and Update menus down respectively.
+
+=========================================
