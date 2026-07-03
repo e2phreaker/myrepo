@@ -702,8 +702,8 @@ if [ "$tmode" = "1" ]; then
 
     echo ""
     echo "⚙️ Metode Penggabungan (Merge Engine):"
-    echo "1. Direct Copy  (Sangat cepat, file disalin langsung, mungkin muncul warning stempel waktu)"
-    echo "2. Full Re-encode (Lebih lambat, render ulang dari nol setiap file, 100% aman tanpa warning)"
+    echo "1. Direct Copy    (Sangat cepat. Cocok jika semua lagu berasal dari sumber/album yang persis sama)"
+    echo "2. Full Re-encode (Lebih lambat. Lagu diseragamkan ulang dari nol. 100% aman diputar di perangkat apa pun)"
     read -p "Pilih metode: " m_engine
 
     tempdir="$outdir/temp"
@@ -775,12 +775,12 @@ if [ "$tmode" = "1" ]; then
 
     # ===== CONCAT FINAL =====
     if [ "$m_engine" = "1" ]; then
-        # Mode Direct Copy (butuh flag pengaman khusus)
-        run_ffmpeg -f concat -safe 0 -fflags +genpts -i "$newlist" \
+        # Mode Direct Copy
+        ffmpeg -hide_banner -loglevel fatal -stats -f concat -safe 0 -fflags +genpts -i "$newlist" \
         -c copy -reset_timestamps 1 -avoid_negative_ts make_zero "$output"
     else
-        # Mode Re-encode (stempel waktu sudah sempurna dari awal, langsung gabung mulus)
-        run_ffmpeg -f concat -safe 0 -i "$newlist" -c copy "$output"
+        # Mode Re-encode
+        ffmpeg -hide_banner -loglevel fatal -stats -f concat -safe 0 -i "$newlist" -c copy "$output"
     fi
 
     if [ -f "$output" ]; then
