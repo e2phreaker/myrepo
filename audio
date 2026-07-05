@@ -718,27 +718,23 @@ if [ "$tmode" = "1" ]; then
         outfile="$tempdir/file_$i.$ext"
 
         if [ "$m_engine" = "1" ]; then
-            # --- MODE 1: DIRECT COPY ---
-            # Cek samplerate & channel seperti sistem lama
-            sr=$(ffprobe -v error -select_streams a:0 \
-            -show_entries stream=sample_rate \
-            -of default=noprint_wrappers=1:nokey=1 "$infile")
+    # --- MODE 1: DIRECT COPY (DIPERBAIKI) ---
+    # 1. Cek sample rate
+    sr=$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of default=noprint_wrappers=1:nokey=1 "$infile")
+    # 2. Cek channel
+    ch=$(ffprobe -v error -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "$infile")
+    # 3. Cek Codec Audio asli berkas
+    actual_codec=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$infile")
 
-            ch=$(ffprobe -v error -select_streams a:0 \
-            -show_entries stream=channels \
-            -of default=noprint_wrappers=1:nokey=1 "$infile")
-
-            if [[ "$sr" == "44100" && "$ch" == "2" ]]; then
-                echo "⚡ Copy: $(basename "$infile")"
-                cp "$infile" "$outfile"
-            else
-                echo "🔧 Normalize: $(basename "$infile")"
-                run_ffmpeg -i "$infile" \
-                -acodec $codec $bitrate_opt \
-                -ar 44100 -ac 2 \
-                "$outfile"
-            fi
-        else
+    # Validasi: Codec HARUS sama dengan target codec, begitu pula sample rate & channel
+    if [[ "$actual_codec" == "$codec" && "$sr" == "44100" && "$ch" == "2" ]]; then
+        echo "⚡ Copy aman (Format & Codec Sesuai): $(basename "$infile")"
+        cp "$infile" "$outfile"
+    else
+        echo "🔧 Melakukan Re-encode (Format berbeda atau tidak standar): $(basename "$infile")"
+        run_ffmpeg -i "$infile" -acodec $codec $bitrate_opt -ar 44100 -ac 2 "$outfile"
+    fi
+else
             # --- MODE 2: FULL RE-ENCODE ---
             # Abaikan pengecekan, paksa render ulang dari nol agar kerangka MP3 sempurna
             echo "🔧 Re-encode: $(basename "$infile")"
