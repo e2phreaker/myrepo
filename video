@@ -175,12 +175,29 @@ TARGET=$(parse_duration "$INPUT")
 
 OUT="$WORKDIR/video_loop_${TARGET}s.mp4"
 
+# === 🔴 TAMBAHKAN BLOK PILIHAN AUDIO INI ===
+echo ""
+echo "🎚️ Deteksi Audio Bawaan:"
+echo "1) Loop DENGAN Audio bawaan"
+echo "2) Loop TANPA Audio (Mute)"
+read -p "Pilih opsi audio: " OPT_AUDIO
+
+if [ "$OPT_AUDIO" = "2" ]; then
+  AUDIO_FLG="-an"
+  echo "🔇 Mode dipasang: Tanpa Audio"
+else
+  AUDIO_FLG=""
+  echo "🔊 Mode dipasang: Dengan Audio"
+fi
+# ===========================================
+
 echo ""
 echo "📂 File: $VIDEO_SRC"
 echo "🔁 Durasi target: ${TARGET} detik"
 echo "🚀 Memproses..."
 
-ffmpeg -y -stream_loop -1 -i "$VIDEO_SRC" -t "$TARGET" -c copy "$OUT"
+# === 🔴 UBAH BARIS FFMEG DENGAN MENYISIPKAN $AUDIO_FLG SEBELUM OUT ===
+ffmpeg -y -stream_loop -1 -i "$VIDEO_SRC" -t "$TARGET" -c copy $AUDIO_FLG "$OUT"
 
 echo ""
 echo -e "${GREEN}✅ DONE → $OUT${RESET}"
@@ -225,12 +242,29 @@ fi
 LOOP_VAL=$((LOOP - 1))
 OUT="$WORKDIR/video_loop_${LOOP}x.mp4"
 
+# === 🔴 TAMBAHKAN BLOK PILIHAN AUDIO INI ===
+echo ""
+echo "🎚️ Deteksi Audio Bawaan:"
+echo "1) Loop DENGAN Audio bawaan"
+echo "2) Loop TANPA Audio (Mute)"
+read -p "Pilih opsi audio: " OPT_AUDIO
+
+if [ "$OPT_AUDIO" = "2" ]; then
+  AUDIO_FLG="-an"
+  echo "🔇 Mode dipasang: Tanpa Audio"
+else
+  AUDIO_FLG=""
+  echo "🔊 Mode dipasang: Dengan Audio"
+fi
+# ===========================================
+
 echo ""
 echo "📂 File: $VIDEO_SRC"
 echo "🔁 Total loop: ${LOOP}x"
 echo "🚀 Memproses..."
 
-ffmpeg -y -stream_loop "$LOOP_VAL" -i "$VIDEO_SRC" -c copy "$OUT"
+# === 🔴 UBAH BARIS FFMEG DENGAN MENYISIPKAN $AUDIO_FLG SEBELUM OUT ===
+ffmpeg -y -stream_loop "$LOOP_VAL" -i "$VIDEO_SRC" -c copy $AUDIO_FLG "$OUT"
 
 echo ""
 echo -e "${GREEN}✅ DONE → $OUT${RESET}"
