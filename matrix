@@ -472,8 +472,7 @@ check_update() {
 
         read -p "Update sekarang? (y/n): " confirm
 
-        if [[ $confirm =~ ^[Yy]$ ]]; then
-if [[ $confirm =~ ^[Yy]$ ]];
+        if [[ $confirm =~ ^[Yy]$ ]];
         then
             echo "⬇️ Mengupdate & Mengenkripsi Semua Modul..."
             cd "$WORKDIR" || exit 
@@ -547,7 +546,6 @@ while true; do
 
     case $menu in
         1)
-            clear
             clear
             if [ -f "$WORKDIR/.audio" ]; then
                 "$WORKDIR/.audio"
