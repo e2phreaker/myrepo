@@ -182,6 +182,7 @@ echo "3) 🧹 Clean Metadata"
 echo "4) 🔍 View Metadata (Full Info)"
 echo "5) 🎶 Merge Audio (Playlist Engine)"
 echo "6) 🎚️ Audio Mastering (Pro Engine)"
+echo "7) 🎛️ Audio Overlay / Blender (Volume Control)"
 echo "0) ❌ Keluar"
 echo "=============================="
 
@@ -967,6 +968,86 @@ done
 echo ""
 echo "✅ Selesai | Folder: $outdir"
 read -p "ENTER untuk kembali..."
+fi
+
+# ============================
+# MODE 7 - AUDIO BLENDER / OVERLAY (VOLUME CONTROL)
+# ============================
+if [ "$mode" = "7" ];
+then
+    echo ""
+    echo "🎛️ Mode: Audio Overlay / Blender"
+    echo "Pilih Audio Pertama (Audio Utama / Base)..."
+    pilih_audio
+    
+    # Simpan daftar file pertama
+    files1=("${files[@]}")
+    valid_files1=()
+    for f in "${files1[@]}"; do [ -f "$f" ] && valid_files1+=("$f"); done
+    
+    if [ ${#valid_files1[@]} -eq 0 ]; then
+        echo "❌ Audio pertama tidak ditemukan"; read -p "ENTER..."; continue
+    fi
+    
+    echo "--- Daftar Berkas Pertama ---"
+    for i in "${!valid_files1[@]}"; do echo "$((i+1)). $(basename "${valid_files1[$i]}")"; done
+    read -p "Pilih nomor audio pertama: " idx1
+    audio1="${valid_files1[$((idx1-1))]}"
+    
+    if [ -z "$audio1" ]; then echo "❌ Pilihan tidak valid"; read -p "ENTER..."; continue; fi
+
+    echo ""
+    echo "Pilih Audio Kedua (Audio Tambahan / Backsound)..."
+    pilih_audio
+    
+    files2=("${files[@]}")
+    valid_files2=()
+    for f in "${files2[@]}"; do [ -f "$f" ] && valid_files2+=("$f"); done
+    
+    if [ ${#valid_files2[@]} -eq 0 ]; then
+        echo "❌ Audio kedua tidak ditemukan"; read -p "ENTER..."; continue
+    fi
+    
+    echo "--- Daftar Berkas Kedua ---"
+    for i in "${!valid_files2[@]}"; do echo "$((i+1)). $(basename "${valid_files2[$i]}")"; done
+    read -p "Pilih nomor audio kedua: " idx2
+    audio2="${valid_files2[$((idx2-1))]}"
+    
+    if [ -z "$audio2" ]; then echo "❌ Pilihan tidak valid"; read -p "ENTER..."; continue; fi
+
+    # ===== INPUT VOLUME PERSENTASE =====
+    echo ""
+    read -p "🎚️ Volume Audio 1 (0-100, contoh 100): " vol1_input
+    read -p "🎚️ Volume Audio 2 (0-100, contoh 5): " vol2_input
+    
+    # Validasi input numerik default ke 100 & 5 jika kosong/salah
+    [[ ! "$vol1_input" =~ ^[0-9]+$ ]] && vol1_input=100
+    [[ ! "$vol2_input" =~ ^[0-9]+$ ]] && vol2_input=5
+
+    # Konversi skala 0-100 menjadi desimal untuk ffmpeg (0.0 - 1.0)
+    vol1=$(awk "BEGIN {printf \"%.2f\", $vol1_input/100}")
+    vol2=$(awk "BEGIN {printf \"%.2f\", $vol2_input/100}")
+
+    # ===== FORMAT & OUTPUT =====
+    pilih_format || continue
+    setup_output
+    
+    timestamp=$(date +%H-%M-%S)
+    filename1=$(basename "${audio1%.*}")
+    output="$outdir/${filename1}_blended_${timestamp}.$ext"
+
+    echo ""
+    echo "🚀 Menggabungkan dengan volume: Audio1 ($vol1_input%) & Audio2 ($vol2_input%)..."
+    
+    # Menjalankan FFmpeg dengan filter amix untuk mixing audio terkontrol volume desimal
+    run_ffmpeg -i "$audio1" -i "$audio2" -filter_complex \
+    "[0:a]volume=$vol1[a1];[1:a]volume=$vol2[a2];[a1][a2]amix=inputs=2:duration=longest:dropout_transition=2[out]" \
+    -map "[out]" -acodec $codec "$output"
+
+    echo ""
+    echo "✅ Selesai!"
+    echo "📦 Output: $output"
+    read -p "ENTER untuk kembali..."
 fi
 
 # ============================
