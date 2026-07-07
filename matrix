@@ -473,27 +473,31 @@ check_update() {
         read -p "Update sekarang? (y/n): " confirm
 
         if [[ $confirm =~ ^[Yy]$ ]]; then
+if [[ $confirm =~ ^[Yy]$ ]];
+        then
+            echo "⬇️ Mengupdate & Mengenkripsi Semua Modul..."
+            cd "$WORKDIR" || exit 
 
-            echo "⬇️ Mengupdate & Mengenkripsi..."
-
-            cd "$WORKDIR" || exit
-
-            # Download versi terbaru sebagai file mentah sementara
-            curl -fLo .matrix_raw "$REPO/matrix"
-
-            # Enkripsi ulang menggunakan SHC di HP user
+            # 1. Update Launcher Utama
+            curl -fLo .matrix_raw "$REPO/matrix" 
             shc -f .matrix_raw -o matrix
-            
-            # Bersihkan file sampah
-            rm -f .matrix_raw .matrix_raw.x.c
+            rm -f .matrix_raw .matrix_raw.x.c [cite: 175]
+            chmod +x matrix [cite: 175]
 
-            chmod +x matrix
+            # 2. Update Semua Sub-Modul (Ditambahkan di sini)
+            for modul in audio video yt loop live pong; do
+                echo "🔄 Mengupdate modul: $modul..."
+                curl -fLo ".$modul" "$REPO/$modul" 2>/dev/null
+                sed -i 's/\r$//' ".$modul"
+                shc -f ".$modul" -o ".$modul"
+                rm -f ".$modul" ".$modul.x.c"
+                chmod +x ".$modul"
+            done
 
-            echo "$latest" > "$VERSION_FILE"
-
-            echo -e "${GREEN}✅ Update & Enkripsi selesai${RESET}"
-            echo "🔁 Jalankan ulang: matrix"
-            exit 0
+            echo "$latest" > "$VERSION_FILE" [cite: 175]
+            echo -e "${GREEN}✅ Update & Enkripsi semua modul selesai${RESET}" [cite: 175]
+            echo "🔁 Jalankan ulang: matrix" [cite: 175]
+            exit 0 [cite: 175]
         fi
     else
         echo -e "${GREEN}✅ Sudah versi terbaru${RESET}"
@@ -544,99 +548,60 @@ while true; do
     case $menu in
         1)
             clear
-            TMP_RAW="$WORKDIR/.audio_raw"
-            TMP_BIN="$WORKDIR/.audio"
-            echo "⬇️ Downloading & Encrypting AudioMatrix..."
-            curl -fsSL "$REPO/audio" -o "$TMP_RAW" || {
-                echo "❌ Gagal download AudioMatrix."
+            clear
+            if [ -f "$WORKDIR/.audio" ]; then
+                "$WORKDIR/.audio"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         2)
             clear
-            TMP_RAW="$WORKDIR/.video_raw"
-            TMP_BIN="$WORKDIR/.video"
-            echo "⬇️ Downloading & Encrypting VideoMatrix..."
-            curl -fsSL "$REPO/video" -o "$TMP_RAW" || {
-                echo "❌ Gagal download VideoMatrix."
+            if [ -f "$WORKDIR/.video" ]; then
+                "$WORKDIR/.video"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         3)
             clear
-            TMP_RAW="$WORKDIR/.yt_raw"
-            TMP_BIN="$WORKDIR/.yt"
-            echo "⬇️ Downloading & Encrypting FetchMatrix..."
-            curl -fsSL "$REPO/yt" -o "$TMP_RAW" || {
-                echo "❌ Gagal download FetchMatrix."
+            if [ -f "$WORKDIR/.yt" ]; then
+                "$WORKDIR/.yt"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         4)
             clear
-            TMP_RAW="$WORKDIR/.loop_raw"
-            TMP_BIN="$WORKDIR/.loop"
-            echo "⬇️ Downloading & Encrypting LoopMatrix..."
-            curl -fsSL "$REPO/loop" -o "$TMP_RAW" || {
-                echo "❌ Gagal download LoopMatrix."
+            if [ -f "$WORKDIR/.loop" ]; then
+                "$WORKDIR/.loop"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         5)
             clear
-            TMP_RAW="$WORKDIR/.live_raw"
-            TMP_BIN="$WORKDIR/.live"
-            echo "⬇️ Downloading & Encrypting StreamMatrix..."
-            curl -fsSL "$REPO/live" -o "$TMP_RAW" || {
-                echo "❌ Gagal download StreamMatrix."
+            if [ -f "$WORKDIR/.live" ]; then
+                "$WORKDIR/.live"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         6)
             clear
             TMP_RAW="$WORKDIR/.pong_raw"
-            TMP_BIN="$WORKDIR/.pong"
-            echo "⬇️ Downloading & Encrypting PongMatrix Pro..."
-            curl -fsSL "$REPO/pong" -o "$TMP_RAW" || {
-                echo "❌ Gagal download PongMatrix Pro."
+            clear
+            if [ -f "$WORKDIR/.pong" ]; then
+                "$WORKDIR/.pong"
+            else
+                echo "❌ Modul tidak ditemukan. Silakan cek pembaruan."
                 read -p "ENTER..."
-                break
-            }
-            shc -f "$TMP_RAW" -o "$TMP_BIN"
-            rm -f "$TMP_RAW" "$TMP_RAW.x.c"
-            chmod +x "$TMP_BIN"
-            "$TMP_BIN"
-            rm -f "$TMP_BIN"
+            fi
             ;;
         7)
             while true; do
