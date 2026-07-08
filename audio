@@ -1058,6 +1058,94 @@ if [ "$mode" = "7" ]; then
         
         echo "✅ Volume Audio ke-$audio_counter di-set ke: $vol_in%"
         
+# ========================================================
+# MODE 7 - MULTI-AUDIO BLENDER PRO (TAK TERBATAS + PANDUAN)
+# ========================================================
+if [ "$mode" = "7" ]; then
+    clear
+    echo "=========================================================="
+    echo " 🎛️  Selamat Datang di Multi-Audio Blender Pro"
+    echo "=========================================================="
+    echo " 💡 PANDUAN UNTUK PENGGUNA AWAM:"
+    echo " 1. Fitur ini berfungsi mencampur banyak audio menjadi satu berkas."
+    echo " 2. Kamu bisa memasukkan lebih dari 2 audio (bebas sesukamu)."
+    echo " 3. Atur volume dalam bentuk persen angka murni (0 sampai 100)."
+    echo "    - Contoh: Ketik 100 untuk volume normal / keras."
+    echo "    - Contoh: Ketik 5 atau 10 untuk musik latar (sayup-sayup)."
+    echo "=========================================================="
+    echo ""
+
+    # Inisialisasi wadah penampung data internal
+    audio_paths=()      # Tempat menyimpan lokasi file audio
+    volume_inputs=()    # Tempat menyimpan angka persen dari user
+    volume_decimals=()  # Tempat menyimpan hasil konversi angka desimal FFmpeg
+    ffmpeg_inputs=""    # Teks perintah input FFmpeg
+    filter_complex=""   # Teks perintah filter pencampur suara
+    
+    audio_counter=1
+
+    # ========================================================
+    # LOOP INPUT AUDIO (BISA MENAMBAH AUDIO TANPA BATAS)
+    # ========================================================
+    while true; do
+        echo -e "\n----------------------------------------------------------"
+        echo -e "➔ 📂 [PROSES] Memilih File Audio ke-$audio_counter"
+        echo -e "----------------------------------------------------------"
+        echo "💡 Petunjuk: Tekan ENTER langsung di bawah ini untuk melihat semua file"
+        
+        # Panggil fungsi pencarian berkas bawaan sistem Matrix
+        pilih_audio
+        
+        # Saring file yang benar-benar ada di memori
+        files_temp=("${files[@]}")
+        valid_files_temp=()
+        for f in "${files_temp[@]}"; do [ -f "$f" ] && valid_files_temp+=("$f"); done
+        
+        if [ ${#valid_files_temp[@]} -eq 0 ]; then
+            echo "❌ Berkas audio tidak ditemukan di folder MediaMatrix!"
+            read -p "Tekan ENTER untuk mengulangi pemilihan..."
+            continue
+        fi
+        
+        echo -e "\n📋 Silakan pilih nomor file di bawah ini:"
+        for i in "${!valid_files_temp[@]}"; do 
+            echo "$((i+1)). $(basename "${valid_files_temp[$i]}")"
+        done
+        
+        read -p "📝 Masukkan Nomor Pilihanmu (Contoh: 1): " idx
+        selected_audio="${valid_files_temp[$((idx-1))]}"
+        
+        if [ -z "$selected_audio" ]; then 
+            echo "❌ Nomor yang kamu ketik salah atau tidak terdaftar!"
+            read -p "Tekan ENTER untuk mengulangi pemilihan..."
+            continue
+        fi
+        
+        # Simpan jalur file audio yang valid ke array utama
+        audio_paths+=("$selected_audio")
+        echo "✅ Berhasil Mengunci: $(basename "$selected_audio")"
+        
+        # --------------------------------------------------------
+        # INPUT CONTROL VOLUME PERSENTASE
+        # --------------------------------------------------------
+        echo -e "\n🎚️  KONTROL VOLUME AUDIO ke-$audio_counter"
+        echo "💡 Contoh Pengisian:"
+        echo "   - Ketik 100 jika ini Suara Utama / Vokal agar terdengar jelas."
+        echo "   - Ketik 5 jika ini Musik Latar / Backsound agar samar-samar."
+        read -p "📝 Masukkan volume (0-100, Default 100): " vol_in
+        
+        # Sabuk pengaman: jika user salah ketik huruf atau kosong, otomatis diubah ke 100%
+        [[ ! "$vol_in" =~ ^[0-9]+$ ]] && vol_in=100
+        
+        # Konversi angka bulat user menjadi desimal standar FFmpeg menggunakan bantuan awk
+        vol_dec=$(awk "BEGIN {printf \"%.2f\", $vol_in/100}")
+        
+        # Simpan data volume ke memori
+        volume_inputs+=("$vol_in")
+        volume_decimals+=("$vol_dec")
+        
+        echo "✅ Volume Audio ke-$audio_counter di-set ke: $vol_in%"
+        
         # --------------------------------------------------------
         # TANYA USER APAKAH INGIN MENAMBAH AUDIO LAGI
         # --------------------------------------------------------
@@ -1108,6 +1196,36 @@ if [ "$mode" = "7" ]; then
     # PEMILIHAN FORMAT DAN FOLDER OUTPUT BAWAN SYSTEM
     # ========================================================
     pilih_format || continue
+    
+    # ===== MENU SELEKSI BITRATE (MENIRU LOGIKA MODE CONVERT) =====
+    if [[ "$codec" == "libmp3lame" || "$codec" == "aac" ]]; then
+        echo ""
+        echo "🎚️ Pilih Bitrate Output Audio:"
+        echo "1. 128k (Standar)"
+        echo "2. 192k (Bagus)"
+        echo "3. 256k (Tinggi)"
+        echo "4. 320k (Maksimal)"
+        echo "5. Custom"
+        read -p "Pilih [1-5]: " b
+
+        case $b in
+            1) bitrate_opt="-b:a 128k" ;;
+            2) bitrate_opt="-b:a 192k" ;;
+            3) bitrate_opt="-b:a 256k" ;;
+            4) bitrate_opt="-b:a 320k" ;;
+            5)
+                read -p "Masukkan bitrate khusus (contoh 224k): " br
+                bitrate_opt="-b:a $br"
+                ;;
+            *)
+                echo "⚠️ Pilihan tidak valid, menggunakan standar 128k."
+                bitrate_opt="-b:a 128k"
+                ;;
+        esac
+    else
+        bitrate_opt=""
+    fi
+
     setup_output
     
     timestamp=$(date +%H-%M-%S)
@@ -1121,8 +1239,8 @@ if [ "$mode" = "7" ]; then
     done
     echo "----------------------------------------------------------"
 
-    # Jalankan perintah eksekusi mixing FFmpeg secara aman
-    eval "run_ffmpeg $ffmpeg_inputs -filter_complex \"$filter_complex\" -map \"[out]\" -acodec $codec \"$output\""
+    # Jalankan perintah eksekusi mixing FFmpeg secara aman dengan bitrate_opt
+    eval "run_ffmpeg $ffmpeg_inputs -filter_complex \"$filter_complex\" -map \"[out]\" -acodec $codec $bitrate_opt \"$output\""
 
     # ========================================================
     # RENDER SELESAI
