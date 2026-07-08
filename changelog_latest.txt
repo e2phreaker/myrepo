@@ -3,16 +3,21 @@ MediaMatrix Changelog
 =========================================
 
 Version 1.4.0
-Released: 2026-07-03
+Released: 2026-07-08
+
+[ADDED]
+
+- Introduced the "Multi-Audio Blender Pro" module at menu slot 7, featuring dynamic looping that allows users to mix an unlimited number of audio tracks simultaneously.
+- Embedded an interactive step-by-step user guide with clear examples inside the volume configuration prompt to assist non-technical users.
 
 [IMPROVED]
 
-- Enhanced the AudioMatrix Pro (Merge Audio) module by adding a dual-engine processing choice in No Fade mode: "Direct Copy" for speed and "Full Re-encode" for perfect timestamp safety.
-- Resolved the "non monotonically increasing dts" warning when merging MP3 files by forcing pristine DTS/PTS generation in Re-encode mode.
+- Re-engineered the backend infrastructure to pre-download and encrypt all sub-modules locally via SHC during installation or updates, completely eliminating the GitHub "429: Too Many Requests" error.
+- Enhanced the auto-update engine to automatically fetch, re-compile, and secure all dependent processing tools simultaneously in a single operation.
 
-[CHANGED]
+[FIXED]
 
-- Adjusted the core FFmpeg logging behavior in the Audio module from 'error' to 'fatal' to ensure a clean, distraction-free terminal output during rendering.
-- Updated the main dashboard layout to accommodate PongMatrix Pro at menu slot 6, shifting the License, Changelog, and Update menus down respectively.
+- Resolved a critical installation crash caused by a syntax error near the unexpected '}' token at the final block of the main launcher script.
+- Fixed a file truncation bug by isolating the SHC raw compilation files from the binary output destination during the initialization process.
 
 =========================================
