@@ -449,7 +449,7 @@ fi
 }
 
 # =========================
-# AUTO UPDATE
+# AUTO UPDATE (BERSIH DARI BUG SITASI)
 # =========================
 check_update() {
     echo ""
@@ -472,31 +472,30 @@ check_update() {
 
         read -p "Update sekarang? (y/n): " confirm
 
-        if [[ $confirm =~ ^[Yy]$ ]];
-        then
+        if [[ $confirm =~ ^[Yy]$ ]]; then
             echo "⬇️ Mengupdate & Mengenkripsi Semua Modul..."
             cd "$WORKDIR" || exit 
 
-            # 1. Update Launcher Utama
+            # 1. Jalankan Pembaruan Launcher Utama (matrix)
             curl -fLo .matrix_raw "$REPO/matrix" 
             shc -f .matrix_raw -o matrix
-            rm -f .matrix_raw .matrix_raw.x.c [cite: 175]
-            chmod +x matrix [cite: 175]
+            rm -f .matrix_raw .matrix_raw.x.c
+            chmod +x matrix
 
-            # 2. Update Semua Sub-Modul (Ditambahkan di sini)
+            # 2. Jalankan Pembaruan Semua Sub-Modul Terenkripsi Secara Aman (_raw)
             for modul in audio video yt loop live pong; do
                 echo "🔄 Mengupdate modul: $modul..."
-                curl -fLo ".$modul" "$REPO/$modul" 2>/dev/null
-                sed -i 's/\r$//' ".$modul"
-                shc -f ".$modul" -o ".$modul"
-                rm -f ".$modul" ".$modul.x.c"
+                curl -fLo ".${modul}_raw" "$REPO/$modul" 2>/dev/null
+                sed -i 's/\r$//' ".${modul}_raw"
+                shc -f ".${modul}_raw" -o ".$modul"
+                rm -f ".${modul}_raw" ".${modul}_raw.x.c"
                 chmod +x ".$modul"
             done
 
-            echo "$latest" > "$VERSION_FILE" [cite: 175]
-            echo -e "${GREEN}✅ Update & Enkripsi semua modul selesai${RESET}" [cite: 175]
-            echo "🔁 Jalankan ulang: matrix" [cite: 175]
-            exit 0 [cite: 175]
+            echo "$latest" > "$VERSION_FILE"
+            echo -e "${GREEN}✅ Update & Enkripsi semua modul selesai${RESET}"
+            echo "🔁 Jalankan ulang: matrix"
+            exit 0
         fi
     else
         echo -e "${GREEN}✅ Sudah versi terbaru${RESET}"
