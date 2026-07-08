@@ -99,17 +99,17 @@ Released: 2026-07-08
 
 [ADDED]
 
-- Introduced the "Multi-Audio Blender Pro" module at menu slot 7, featuring dynamic looping that allows users to mix an unlimited number of audio tracks simultaneously.
+- Introduced the "Multi-Audio Blender Pro" module at menu slot 1, featuring dynamic looping that allows users to mix an unlimited number of audio tracks simultaneously.
 - Embedded an interactive step-by-step user guide with clear examples inside the volume configuration prompt to assist non-technical users.
 
 [IMPROVED]
 
-- Re-engineered the backend infrastructure to pre-download and encrypt all sub-modules locally via SHC during installation or updates, completely eliminating the GitHub "429: Too Many Requests" error.
+- Re-engineered the backend infrastructure to pre-download and encrypt all sub-modules locally  during installation or updates, completely eliminating the GitHub "429: Too Many Requests" error.
 - Enhanced the auto-update engine to automatically fetch, re-compile, and secure all dependent processing tools simultaneously in a single operation.
 
 [FIXED]
 
 - Resolved a critical installation crash caused by a syntax error near the unexpected '}' token at the final block of the main launcher script.
-- Fixed a file truncation bug by isolating the SHC raw compilation files from the binary output destination during the initialization process.
+- Fixed a file truncation bug by isolating the  raw compilation files from the binary output destination during the initialization process.
 
 =========================================
