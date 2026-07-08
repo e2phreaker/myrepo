@@ -970,84 +970,170 @@ echo "✅ Selesai | Folder: $outdir"
 read -p "ENTER untuk kembali..."
 fi
 
-# ============================
-# MODE 7 - AUDIO BLENDER / OVERLAY (VOLUME CONTROL)
-# ============================
-if [ "$mode" = "7" ];
-then
+# ========================================================
+# MODE 7 - MULTI-AUDIO BLENDER PRO (TAK TERBATAS + PANDUAN)
+# ========================================================
+if [ "$mode" = "7" ]; then
+    clear
+    echo "=========================================================="
+    echo " 🎛️  Selamat Datang di Multi-Audio Blender Pro"
+    echo "=========================================================="
+    echo " 💡 PANDUAN UNTUK PENGGUNA AWAM:"
+    echo " 1. Fitur ini berfungsi mencampur banyak audio menjadi satu berkas."
+    echo " 2. Kamu bisa memasukkan lebih dari 2 audio (bebas sesukamu)."
+    echo " 3. Atur volume dalam bentuk persen angka murni (0 sampai 100)."
+    echo "    - Contoh: Ketik 100 untuk volume normal / keras."
+    echo "    - Contoh: Ketik 5 atau 10 untuk musik latar (sayup-sayup)."
+    echo "=========================================================="
     echo ""
-    echo "🎛️ Mode: Audio Overlay / Blender"
-    echo "Pilih Audio Pertama (Audio Utama / Base)..."
-    pilih_audio
-    
-    # Simpan daftar file pertama
-    files1=("${files[@]}")
-    valid_files1=()
-    for f in "${files1[@]}"; do [ -f "$f" ] && valid_files1+=("$f"); done
-    
-    if [ ${#valid_files1[@]} -eq 0 ]; then
-        echo "❌ Audio pertama tidak ditemukan"; read -p "ENTER..."; continue
-    fi
-    
-    echo "--- Daftar Berkas Pertama ---"
-    for i in "${!valid_files1[@]}"; do echo "$((i+1)). $(basename "${valid_files1[$i]}")"; done
-    read -p "Pilih nomor audio pertama: " idx1
-    audio1="${valid_files1[$((idx1-1))]}"
-    
-    if [ -z "$audio1" ]; then echo "❌ Pilihan tidak valid"; read -p "ENTER..."; continue; fi
 
-    echo ""
-    echo "Pilih Audio Kedua (Audio Tambahan / Backsound)..."
-    pilih_audio
+    # Inisialisasi wadah penampung data internal
+    audio_paths=()      # Tempat menyimpan lokasi file audio
+    volume_inputs=()    # Tempat menyimpan angka persen dari user
+    volume_decimals=()  # Tempat menyimpan hasil konversi angka desimal FFmpeg
+    ffmpeg_inputs=""    # Teks perintah input FFmpeg
+    filter_complex=""   # Teks perintah filter pencampur suara
     
-    files2=("${files[@]}")
-    valid_files2=()
-    for f in "${files2[@]}"; do [ -f "$f" ] && valid_files2+=("$f"); done
-    
-    if [ ${#valid_files2[@]} -eq 0 ]; then
-        echo "❌ Audio kedua tidak ditemukan"; read -p "ENTER..."; continue
-    fi
-    
-    echo "--- Daftar Berkas Kedua ---"
-    for i in "${!valid_files2[@]}"; do echo "$((i+1)). $(basename "${valid_files2[$i]}")"; done
-    read -p "Pilih nomor audio kedua: " idx2
-    audio2="${valid_files2[$((idx2-1))]}"
-    
-    if [ -z "$audio2" ]; then echo "❌ Pilihan tidak valid"; read -p "ENTER..."; continue; fi
+    audio_counter=1
 
-    # ===== INPUT VOLUME PERSENTASE =====
-    echo ""
-    read -p "🎚️ Volume Audio 1 (0-100, contoh 100): " vol1_input
-    read -p "🎚️ Volume Audio 2 (0-100, contoh 5): " vol2_input
+    # ========================================================
+    # LOOP INPUT AUDIO (BISA MENAMBAH AUDIO TANPA BATAS)
+    # ========================================================
+    while true; do
+        echo -e "\n----------------------------------------------------------"
+        echo -e "➔ 📂 [PROSES] Memilih File Audio ke-$audio_counter"
+        echo -e "----------------------------------------------------------"
+        echo "💡 Petunjuk: Tekan ENTER langsung di bawah ini untuk melihat semua file"
+        
+        # Panggil fungsi pencarian berkas bawaan sistem Matrix
+        pilih_audio
+        
+        # Saring file yang benar-benar ada di memori
+        files_temp=("${files[@]}")
+        valid_files_temp=()
+        for f in "${files_temp[@]}"; do [ -f "$f" ] && valid_files_temp+=("$f"); done
+        
+        if [ ${#valid_files_temp[@]} -eq 0 ]; then
+            echo "❌ Berkas audio tidak ditemukan di folder MediaMatrix!"
+            read -p "Tekan ENTER untuk mengulangi pemilihan..."
+            continue
+        fi
+        
+        echo -e "\n📋 Silakan pilih nomor file di bawah ini:"
+        for i in "${!valid_files_temp[@]}"; do 
+            echo "$((i+1)). $(basename "${valid_files_temp[$i]}")"
+        done
+        
+        read -p "📝 Masukkan Nomor Pilihanmu (Contoh: 1): " idx
+        selected_audio="${valid_files_temp[$((idx-1))]}"
+        
+        if [ -z "$selected_audio" ]; then 
+            echo "❌ Nomor yang kamu ketik salah atau tidak terdaftar!"
+            read -p "Tekan ENTER untuk mengulangi pemilihan..."
+            continue
+        fi
+        
+        # Simpan jalur file audio yang valid ke array utama
+        audio_paths+=("$selected_audio")
+        echo "✅ Berhasil Mengunci: $(basename "$selected_audio")"
+        
+        # --------------------------------------------------------
+        # INPUT CONTROL VOLUME PERSENTASE
+        # --------------------------------------------------------
+        echo -e "\n🎚️  KONTROL VOLUME AUDIO ke-$audio_counter"
+        echo "💡 Contoh Pengisian:"
+        echo "   - Ketik 100 jika ini Suara Utama / Vokal agar terdengar jelas."
+        echo "   - Ketik 5 jika ini Musik Latar / Backsound agar samar-samar."
+        read -p "📝 Masukkan volume (0-100, Default 100): " vol_in
+        
+        # Sabuk pengaman: jika user salah ketik huruf atau kosong, otomatis diubah ke 100%
+        [[ ! "$vol_in" =~ ^[0-9]+$ ]] && vol_in=100
+        
+        # Konversi angka bulat user menjadi desimal standar FFmpeg menggunakan bantuan awk
+        vol_dec=$(awk "BEGIN {printf \"%.2f\", $vol_in/100}")
+        
+        # Simpan data volume ke memori
+        volume_inputs+=("$vol_in")
+        volume_decimals+=("$vol_dec")
+        
+        echo "✅ Volume Audio ke-$audio_counter di-set ke: $vol_in%"
+        
+        # --------------------------------------------------------
+        # TANYA USER APAKAH INGIN MENAMBAH AUDIO LAGI
+        # --------------------------------------------------------
+        echo -e "\n🔄 Opsi Penambahan Audio"
+        echo "1) ➕ Tambah Audio Lagi (Audio ke-$((audio_counter+1)))"
+        echo "2) 🚀 Cukup, Langsung Proses Gabungkan Semua Audio!"
+        read -p "📝 Pilih opsi [1 atau 2]: " opsi_lanjut
+        
+        if [ "$opsi_lanjut" = "2" ]; then
+            # Validasi minimal harus ada 2 audio yang dicampur
+            if [ $audio_counter -lt 2 ]; then
+                echo "⚠️  Minimal kamu harus memasukkan 2 file audio agar bisa digabungkan!"
+                read -p "Tekan ENTER untuk menambah audio kedua..."
+                audio_counter=$((audio_counter+1))
+                continue
+            fi
+            break
+        fi
+        
+        audio_counter=$((audio_counter+1))
+    done
+
+    # ========================================================
+    # MENYUSUN STRUKTUR FORMULA MATRIKS FFMPEG (FILTER COMPLEX)
+    # ========================================================
+    clear
+    echo "=========================================================="
+    echo " ⚙️  Mempersiapkan Mesin Render..."
+    echo "=========================================================="
     
-    # Validasi input numerik default ke 100 & 5 jika kosong/salah
-    [[ ! "$vol1_input" =~ ^[0-9]+$ ]] && vol1_input=100
-    [[ ! "$vol2_input" =~ ^[0-9]+$ ]] && vol2_input=5
+    total_audio=${#audio_paths[@]}
+    
+    # Loop untuk merakit teks instruksi input -i dan filter volume desimal
+    for i in "${!audio_paths[@]}"; do
+        ffmpeg_inputs="$ffmpeg_inputs -i \"${audio_paths[$i]}\""
+        filter_complex="$filter_complex[$i:a]volume=${volume_decimals[$i]}[a$i];"
+    done
+    
+    # Loop untuk mengumpulkan hasil volume ke gerbang pencampuran amix
+    for i in "${!audio_paths[@]}"; do
+        filter_complex="$filter_complex[a$i]"
+    done
+    
+    # Finalisasi parameter amix (mengikuti lagu terpanjang agar aman)
+    filter_complex="$filter_complex amix=inputs=$total_audio:duration=longest:dropout_transition=2[out]"
 
-    # Konversi skala 0-100 menjadi desimal untuk ffmpeg (0.0 - 1.0)
-    vol1=$(awk "BEGIN {printf \"%.2f\", $vol1_input/100}")
-    vol2=$(awk "BEGIN {printf \"%.2f\", $vol2_input/100}")
-
-    # ===== FORMAT & OUTPUT =====
+    # ========================================================
+    # PEMILIHAN FORMAT DAN FOLDER OUTPUT BAWAN SYSTEM
+    # ========================================================
     pilih_format || continue
     setup_output
     
     timestamp=$(date +%H-%M-%S)
-    filename1=$(basename "${audio1%.*}")
-    output="$outdir/${filename1}_blended_${timestamp}.$ext"
+    filename_base=$(basename "${audio_paths[0]%.*}")
+    output="$outdir/${filename_base}_multi_blended_${timestamp}.$ext"
 
-    echo ""
-    echo "🚀 Menggabungkan dengan volume: Audio1 ($vol1_input%) & Audio2 ($vol2_input%)..."
-    
-    # Menjalankan FFmpeg dengan filter amix untuk mixing audio terkontrol volume desimal
-    run_ffmpeg -i "$audio1" -i "$audio2" -filter_complex \
-    "[0:a]volume=$vol1[a1];[1:a]volume=$vol2[a2];[a1][a2]amix=inputs=2:duration=longest:dropout_transition=2[out]" \
-    -map "[out]" -acodec $codec "$output"
+    echo -e "\n🚀 Sedang Render Percampuran Suara..."
+    echo "📊 Total File yang Digabung: $total_audio File"
+    for i in "${!audio_paths[@]}"; do
+        echo "   🎵 Track $((i+1)): $(basename "${audio_paths[$i]}") | Volume: ${volume_inputs[$i]}%"
+    done
+    echo "----------------------------------------------------------"
 
+    # Jalankan perintah eksekusi mixing FFmpeg secara aman
+    eval "run_ffmpeg $ffmpeg_inputs -filter_complex \"$filter_complex\" -map \"[out]\" -acodec $codec \"$output\""
+
+    # ========================================================
+    # RENDER SELESAI
+    # ========================================================
     echo ""
-    echo "✅ Selesai!"
-    echo "📦 Output: $output"
-    read -p "ENTER untuk kembali..."
+    echo "=========================================================="
+    echo " ✅ PENGGABUNGAN SELESAI / SUCCESS!"
+    echo "=========================================================="
+    echo " 📦 File Tersimpan di : $output"
+    echo "=========================================================="
+    read -p "Tekan ENTER untuk kembali ke Menu Utama..."
 fi
 
 # ============================
